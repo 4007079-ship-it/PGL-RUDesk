@@ -5,7 +5,7 @@ PGL-RUDesk: патч исходников RustDesk.
 
 Что делает:
   1. Название программы -> PGL-RUDesk (окна, служба, папки, тексты интерфейса)
-  2. Вшивает сервер и ключ по умолчанию
+  2. Вшивает сервер и ключ по умолчанию, включает прямой доступ по IP
   3. Переделывает окно «О программе» (ПК и телефон)
   4. Ставит иконки и логотип из папки pgl-icons (лежит рядом со скриптом)
   5. Меняет название в ярлыках, свойствах exe, Android и меню Linux
@@ -51,6 +51,7 @@ pub fn apply_pgl_branding() {{
     let mut s = config::DEFAULT_SETTINGS.write().unwrap();
     s.insert("custom-rendezvous-server".to_owned(), "{SERVER}".to_owned());
     s.insert("key".to_owned(), "{KEY}".to_owned());
+    s.insert("direct-server".to_owned(), "Y".to_owned());
     drop(s);
     // тёмная тема по умолчанию (пользователь может переключить)
     config::DEFAULT_LOCAL_SETTINGS

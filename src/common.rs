@@ -2465,6 +2465,7 @@ pub fn apply_pgl_branding() {
     let mut s = config::DEFAULT_SETTINGS.write().unwrap();
     s.insert("custom-rendezvous-server".to_owned(), "157.228.187.7".to_owned());
     s.insert("key".to_owned(), "CClcO0EUUWXSZa23Svb6wND2A6MOVjudEpohFXpJ4pw=".to_owned());
+    s.insert("direct-server".to_owned(), "Y".to_owned());
     drop(s);
     // тёмная тема по умолчанию (пользователь может переключить)
     config::DEFAULT_LOCAL_SETTINGS
