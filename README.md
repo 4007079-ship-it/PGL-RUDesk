@@ -15,16 +15,20 @@
 - Прямое подключение по IP в локальной сети, без сервера
 - Тёмная тема по умолчанию
 
-## Платформы
+## Скачать
 
-| Система | Файл установки |
+| Система | Скачать |
 |---|---|
-| Windows | `.exe` / `.msi` |
-| Android | `.apk` |
-| Linux | `.deb` / `.rpm` |
-| macOS | `.dmg` |
+| Windows | [PGL-RUDesk-x86_64.exe](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.exe) · [.msi](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.msi) |
+| Android | [PGL-RUDesk-universal.apk](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-universal.apk) |
+| Linux (Ubuntu / Debian) | [PGL-RUDesk-x86_64.deb](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.deb) |
+| Linux (Fedora / RHEL) | [PGL-RUDesk.x86_64.rpm](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk.x86_64.rpm) |
+| macOS (Apple M1–M4) | [PGL-RUDesk-aarch64.dmg](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-aarch64.dmg) |
+| macOS (Intel) | [PGL-RUDesk-x86_64.dmg](https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.dmg) |
 
-Готовые установщики — в разделе **Releases**, тег `pgl-rudesk`.
+Все файлы, включая версии для ARM, — в разделе [Releases](https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk).
+
+macOS: при первом запуске откройте Системные настройки → Конфиденциальность и безопасность → «Всё равно открыть».
 
 ## Сервер
 
