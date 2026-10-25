@@ -44,7 +44,13 @@ python3 pgl/pgl-rebrand.py
 
 ## Автор
 
-**SMV** — [4007079@gmail.com](mailto:4007079@gmail.com)
+<img src="pgl/avatar.png" alt="SMV" width="96" align="left">
+
+**SMV**<br>
+[4007079@gmail.com](mailto:4007079@gmail.com)<br>
+[github.com/4007079-ship-it](https://github.com/4007079-ship-it)
+
+<br clear="left">
 
 ## Лицензия
 
