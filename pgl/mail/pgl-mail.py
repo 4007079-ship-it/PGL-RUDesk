@@ -36,7 +36,9 @@ SMTP_PORT = int(ENV("PGL_SMTP_PORT", "25"))
 SMTP_MODE = ENV("PGL_SMTP_MODE", "local")          # local | ssl | starttls
 SMTP_USER = ENV("PGL_SMTP_USER", "")
 SMTP_PASS = ENV("PGL_SMTP_PASS", "")
-MAIL_FROM = ENV("PGL_MAIL_FROM", "PGL-RUDesk <no-reply@localhost>")
+MAIL_FROM = ENV("PGL_MAIL_FROM", "PGL-RUDesk Support <support@localhost>")
+REPLY_TO = ENV("PGL_MAIL_REPLY_TO", "")
+SIGNATURE = ENV("PGL_MAIL_SIGNATURE", "С уважением,|служба поддержки PGL-RUDesk").replace("|", "\n")
 SITE_URL = ENV("PGL_SITE_URL", "")
 CODE_TTL = 15 * 60
 MAX_ATTEMPTS = 5
@@ -104,8 +106,15 @@ def build_message(to, subject, text):
     m["Date"] = formatdate(localtime=True)
     dom = MAIL_FROM.split("@")[-1].strip(" >") or "localhost"
     m["Message-ID"] = make_msgid(domain=dom)
+    if REPLY_TO:
+        m["Reply-To"] = REPLY_TO
     m.set_content(text)
     return m
+
+
+def footer():
+    ask = "Есть вопросы? Просто ответьте на это письмо.\n\n" if REPLY_TO else ""
+    return ask + SIGNATURE + "\n"
 
 
 def send_mail(kind, to, subject, text, ip):
@@ -230,7 +239,7 @@ def reset_request(data, ip):
             "Код действует 15 минут. Введите его на странице восстановления пароля"
             + (f":\n{SITE_URL}/account/#forgot\n\n" if SITE_URL else ".\n\n")
             + "Если вы не запрашивали восстановление — просто проигнорируйте это письмо,\n"
-            "пароль останется прежним.\n\n— PGL-RUDesk\n")
+            "пароль останется прежним.\n\n" + footer())
         send_mail("reset_code", email, f"Код восстановления пароля PGL-RUDesk: {code}", text, ip)
     return 200, {"code": 0, "message": GENERIC_OK}
 
@@ -263,7 +272,8 @@ def reset_confirm(data, ip):
     send_mail("password_changed", email, "Пароль PGL-RUDesk изменён",
               "Здравствуйте!\n\nПароль вашего аккаунта PGL-RUDesk только что изменён.\n"
               "Все сеансы на устройствах завершены — войдите заново с новым паролем.\n\n"
-              "Если это были не вы — срочно напишите администратору.\n\n— PGL-RUDesk\n", ip)
+              + ("Если это были не вы — срочно ответьте на это письмо.\n\n" if REPLY_TO else
+                 "Если это были не вы — срочно свяжитесь с поддержкой.\n\n") + footer(), ip)
     return 200, {"code": 0, "message": "Пароль изменён. Войдите с новым паролем."}
 
 

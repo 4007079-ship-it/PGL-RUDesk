@@ -3,17 +3,16 @@
 #  Почта PGL-RUDesk: восстановление пароля по почте + раздел «Почта»
 #  в панели администратора. Свой почтовый сервер (Postfix, только отправка).
 #
-#  Запуск:  bash pgl-rudesk-mail-install.sh pgl-rudesk.ddns.info
+#  Запуск:  bash pgl-rudesk-mail-install.sh pgl-rudesk.ddns.info --reply-to me@gmail.com
+#  Параметры (необязательные, при обновлении сохраняются прежние):
+#    --reply-to адрес      куда приходят ответы пользователей
+#    --from-name "Имя"     имя отправителя (по умолчанию PGL-RUDesk Support)
 #  Через внешний ящик (если письма не доходят):
 #           bash pgl-rudesk-mail-install.sh pgl-rudesk.ddns.info --relay smtp.yandex.ru:465 box@yandex.ru
 #  Нужен установленный сервер аккаунтов (pgl-rudesk-api-install.sh).
 #  Повторный запуск = обновление (журнал писем сохраняется).
 # =====================================================================
 set -euo pipefail
-
-DOMAIN="${1:-}"
-RELAY="" ; RELAY_USER=""
-if [[ "${2:-}" == "--relay" ]]; then RELAY="${3:-}"; RELAY_USER="${4:-}"; fi
 
 API_DIR="/opt/pgl-rudesk-api"
 API_ENV="/etc/pgl-rudesk-api.env"
@@ -26,6 +25,25 @@ yellow(){ echo -e "\e[33m$*\e[0m"; }
 red()   { echo -e "\e[31m$*\e[0m"; }
 
 [[ $EUID -eq 0 ]] || { red "Запустите от root"; exit 1; }
+
+DOMAIN="${1:-}"; [[ $# -gt 0 ]] && shift
+RELAY=""; RELAY_USER=""; REPLY_TO=""; FROM_NAME=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --relay)     RELAY="${2:-}"; RELAY_USER="${3:-}"; shift $(( $# < 3 ? $# : 3 ));;
+    --reply-to)  REPLY_TO="${2:-}"; shift $(( $# < 2 ? $# : 2 ));;
+    --from-name) FROM_NAME="${2:-}"; shift $(( $# < 2 ? $# : 2 ));;
+    *) red "Неизвестный параметр: $1"; exit 1;;
+  esac
+done
+if [[ -f "$MAIL_ENV" ]]; then
+  [[ -n "$REPLY_TO" ]]  || REPLY_TO="$(grep -oP '^PGL_MAIL_REPLY_TO=\K.*' "$MAIL_ENV" || true)"
+  [[ -n "$FROM_NAME" ]] || FROM_NAME="$(grep -oP '^PGL_MAIL_FROM_NAME=\K.*' "$MAIL_ENV" || true)"
+fi
+[[ -n "$FROM_NAME" ]] || FROM_NAME="PGL-RUDesk Support"
+if [[ -n "$REPLY_TO" && ! "$REPLY_TO" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$ ]]; then
+  red "Неверный адрес для ответов: $REPLY_TO"; exit 1
+fi
 [[ -n "$DOMAIN" ]] || { red "Укажите домен:  bash $0 pgl-rudesk.ddns.info"; exit 1; }
 [[ -f "$API_ENV" && -x "$API_DIR/apimain" ]] || { red "Сначала установите сервер аккаунтов (pgl-rudesk-api-install.sh)"; exit 1; }
 if [[ -n "$RELAY" && ( -z "$RELAY_USER" || "$RELAY" != *:* ) ]]; then
@@ -91,7 +109,10 @@ PGL_SMTP_HOST=${SMTP_HOST}
 PGL_SMTP_PORT=${SMTP_PORT}
 PGL_SMTP_USER=${RELAY_USER}
 PGL_SMTP_PASS=${SMTP_PASS}
-PGL_MAIL_FROM=PGL-RUDesk <$( [[ -n "$RELAY_USER" ]] && echo "$RELAY_USER" || echo "no-reply@${DOMAIN}" )>
+PGL_MAIL_FROM_NAME=${FROM_NAME}
+PGL_MAIL_FROM=${FROM_NAME} <$( [[ -n "$RELAY_USER" ]] && echo "$RELAY_USER" || echo "support@${DOMAIN}" )>
+PGL_MAIL_REPLY_TO=${REPLY_TO}
+PGL_MAIL_SIGNATURE=С уважением,|служба поддержки PGL-RUDesk
 PGL_SITE_URL=${SITE_URL}
 PGL_MAIL_SECRET=${SECRET}
 EOF
@@ -158,6 +179,7 @@ green "================================================================"
 green "  Восстановление пароля по почте включено"
 green "================================================================"
 echo "  Отправитель      : $(grep -oP '^PGL_MAIL_FROM=\K.*' "$MAIL_ENV")"
+echo "  Ответы приходят  : ${REPLY_TO:-никуда (ответить на письмо нельзя)}"
 echo "  Режим            : $( [[ "$MODE" == "local" ]] && echo "своя почта (Postfix)" || echo "внешний SMTP ${RELAY}" )"
 echo "  Для пользователей: ${SITE_URL}/account/#forgot"
 echo "  Журнал писем     : админка → кнопка «Почта» в шапке"
