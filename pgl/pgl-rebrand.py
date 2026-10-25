@@ -10,6 +10,7 @@ PGL-RUDesk: патч исходников RustDesk.
   4. Ставит иконки и логотип из папки pgl-icons (лежит рядом со скриптом)
   5. Меняет название в ярлыках, свойствах exe, Android и меню Linux
   6. Тёмная тема по умолчанию, синий акцент -> розовый #F64AF6 из логотипа
+  7. Windows: при установке exe переименовывается в PGL-RUDesk.exe
 Повторный запуск безопасен: уже применённые изменения пропускаются.
 """
 import re
@@ -211,6 +212,30 @@ def recolor():
     print(f"[+] Цвета: изменено файлов {changed}" if changed else "[=] Цвета: уже изменены")
 
 
+# ---------- 7. Windows: переименование exe при первой установке ----------
+def fix_windows_install():
+    p = Path("src/platform/windows.rs")
+    if not p.is_file():
+        print("[!] src/platform/windows.rs не найден, пропущен")
+        return
+    src = p.read_text(encoding="utf-8")
+    if "{copy_exe}\n{rename_exe}\nreg add {subkey} /f\n" in src:
+        print("[=] src/platform/windows.rs: уже изменён")
+        return
+    a = "{copy_exe}\nreg add {subkey} /f\n"
+    c = "        copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,\n        import_config = get_import_config(&exe),"
+    if src.count(a) != 1 or src.count(c) != 1:
+        sys.exit("[!] src/platform/windows.rs: не удалось применить исправление установки")
+    src = src.replace(a, "{copy_exe}\n{rename_exe}\nreg add {subkey} /f\n").replace(
+        c,
+        "        copy_exe = copy_exe_cmd(&src_exe, &exe, &path)?,\n"
+        "        rename_exe = rename_exe_cmd(&src_exe, &path)?,\n"
+        "        import_config = get_import_config(&exe),",
+    )
+    p.write_text(src, encoding="utf-8")
+    print("[+] src/platform/windows.rs")
+
+
 # ---------- 4. Иконки и логотип ----------
 def install_icons():
     icons = Path(__file__).resolve().parent / "pgl-icons"
@@ -239,4 +264,5 @@ patch("flutter/lib/mobile/pages/settings_page.dart", mobile)
 install_icons()
 rename_all()
 recolor()
+fix_windows_install()
 print(f"\nГотово: {APP_NAME}, сервер {SERVER}, автор {AUTHOR} <{EMAIL}>")
