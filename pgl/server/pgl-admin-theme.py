@@ -28,12 +28,23 @@ html.dark body{background:#0f0f12}
 .menus .el-menu-item:hover,.menus .el-sub-menu__title:hover{background:#2a172a!important}
 .menus .el-menu-item.is-active{color:#f64af6!important;background:#2a172a!important;border-left:3px solid #f64af6}
 .app-main a,.el-card a{color:#f64af6}
+.login-card .el-button.login-button:not(.el-button--primary){display:none!important}
 """
 
 THEME_JS = """(function(){try{var k='vueuse-color-scheme',v=localStorage.getItem(k);
 if(!v||v==='auto'){localStorage.setItem(k,'dark')}
 if(localStorage.getItem(k)==='dark'){document.documentElement.classList.add('dark')}
-if(!localStorage.getItem('lang')){localStorage.setItem('lang','ru')}}catch(e){}})();"""
+if(!localStorage.getItem('lang')){localStorage.setItem('lang','ru')}}catch(e){}})();
+(function(){var busy=false;function check(){var t;try{t=localStorage.getItem('access_token')}catch(e){return}
+if(!t||busy)return;try{if(sessionStorage.getItem('pgl_admin_ok')===t)return}catch(e){}
+busy=true;fetch('/api/admin/user/current',{headers:{'api-token':t}}).then(function(r){return r.json()}).then(function(r){
+busy=false;if(!r||r.code!==0||!r.data)return;
+if((r.data.route_names||[]).indexOf('*')>=0){try{sessionStorage.setItem('pgl_admin_ok',t)}catch(e){}return}
+var done=function(){try{localStorage.removeItem('access_token');localStorage.removeItem('user_info')}catch(e){}
+alert('Панель управления доступна только администратору. Личный кабинет пользователя: '+location.protocol+'//'+location.hostname+'/account/');
+location.href=location.pathname+'#/login';location.reload()};
+fetch('/api/admin/logout',{method:'POST',headers:{'api-token':t}}).then(done,done)}).catch(function(){busy=false})}
+check();setInterval(check,1000)})();"""
 
 HELLO = (
     "### Добро пожаловать в панель PGL-RUDesk, ***{{username}}***\n\n"

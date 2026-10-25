@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Личный кабинет — PGL-RUDesk</title>
+<link rel="icon" href="data:image/svg+xml,__FAVICON__">
+<style>
+  :root { --bg:#0f0f12; --panel:#18191e; --card:#202128; --line:#2c2d35; --text:#ececef; --muted:#9a9ba3;
+    --pink:#f64af6; --pink-d:#c93ac9; --ok:#32bea6; --err:#ff6b81; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; min-height:100vh; }
+  a { color:var(--pink); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  header { border-bottom:1px solid var(--line); background:var(--panel); }
+  .bar { max-width:980px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; gap:12px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:17px; color:var(--text); }
+  .brand svg { width:30px; height:30px; border-radius:7px; }
+  .bar .right { margin-left:auto; display:flex; align-items:center; gap:14px; font-size:14px; color:var(--muted); }
+  .stripes { position:fixed; inset:0; z-index:-1; opacity:.08; pointer-events:none;
+    background:repeating-linear-gradient(180deg,var(--pink) 0 22px,transparent 22px 52px); }
+
+  .auth { max-width:400px; margin:56px auto; padding:0 16px; }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:28px 26px; }
+  .box h1 { font-size:22px; margin:0 0 4px; }
+  .box .sub { color:var(--muted); margin:0 0 22px; font-size:14px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
+  input { width:100%; height:42px; border-radius:9px; border:1px solid var(--line); background:#121317; color:var(--text);
+    padding:0 12px; font-size:15px; outline:none; }
+  input:focus { border-color:var(--pink); }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:42px; padding:0 18px; border-radius:9px;
+    border:1px solid var(--pink); background:var(--pink); color:#fff; font-weight:600; font-size:15px; cursor:pointer; }
+  .btn:hover { background:var(--pink-d); border-color:var(--pink-d); }
+  .btn:disabled { opacity:.6; cursor:default; }
+  .btn.ghost { background:transparent; color:var(--pink); }
+  .btn.ghost:hover { background:rgba(246,74,246,.1); }
+  .btn.wide { width:100%; margin-top:20px; }
+  .msg { min-height:20px; margin-top:12px; font-size:14px; }
+  .msg.err { color:var(--err); } .msg.ok { color:var(--ok); }
+  .switch { text-align:center; margin-top:18px; font-size:14px; color:var(--muted); }
+  .captcha { display:none; margin-top:14px; }
+  .captcha .row { display:flex; gap:10px; align-items:center; }
+  .captcha img { height:42px; border-radius:8px; cursor:pointer; background:#fff; }
+
+  .wrap { max-width:980px; margin:0 auto; padding:30px 20px 60px; }
+  .hello h1 { font-size:26px; margin:0; }
+  .hello p { color:var(--muted); margin:4px 0 26px; }
+  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; }
+  .card.full { grid-column:1 / -1; }
+  .card h2 { font-size:16px; margin:0 0 14px; display:flex; align-items:center; gap:8px; }
+  .card h2::before { content:""; width:4px; height:16px; border-radius:2px; background:var(--pink); }
+  .kv { display:grid; grid-template-columns:120px 1fr; gap:8px 12px; font-size:14px; }
+  .kv span:nth-child(odd) { color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; color:var(--muted); font-weight:500; padding:8px 10px; border-bottom:1px solid var(--line); }
+  td { padding:9px 10px; border-bottom:1px solid #222329; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:6px; background:#2a172a; color:var(--pink); font-size:12px; }
+  .empty { color:var(--muted); font-size:14px; padding:6px 0; }
+  .scroll { overflow-x:auto; }
+  .dl { display:flex; flex-wrap:wrap; gap:10px; }
+  @media (max-width:760px) { .grid { grid-template-columns:1fr; } .kv { grid-template-columns:100px 1fr; } .hide-m { display:none; } }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="stripes"></div>
+<header>
+  <div class="bar">
+    <a class="brand" href="/">__LOGO__<span>PGL-RUDesk</span></a>
+    <div class="right">
+      <span id="who" class="hidden"></span>
+      <a id="adminLink" class="hidden" href="__ADMIN_URL__">Панель администратора</a>
+      <button id="logoutBtn" class="btn ghost hidden" style="height:34px;padding:0 14px;font-size:14px">Выйти</button>
+    </div>
+  </div>
+</header>
+
+<!-- Вход -->
+<section id="viewLogin" class="auth hidden">
+  <form class="box" id="loginForm" novalidate>
+    <h1>Вход</h1>
+    <p class="sub">Личный кабинет PGL-RUDesk</p>
+    <label for="lEmail">Почта</label>
+    <input id="lEmail" type="email" autocomplete="username" required>
+    <label for="lPass">Пароль</label>
+    <input id="lPass" type="password" autocomplete="current-password" required>
+    <div class="captcha" id="lCaptchaBox">
+      <label for="lCaptcha">Код с картинки</label>
+      <div class="row"><input id="lCaptcha" autocomplete="off"><img id="lCaptchaImg" alt="Код" title="Обновить"></div>
+    </div>
+    <button class="btn wide" id="loginBtn" type="submit">Войти</button>
+    <div class="msg" id="loginMsg"></div>
+    <div class="switch">Нет аккаунта? <a href="#register">Зарегистрироваться</a></div>
+  </form>
+</section>
+
+<!-- Регистрация -->
+<section id="viewRegister" class="auth hidden">
+  <form class="box" id="regForm" novalidate>
+    <h1>Регистрация</h1>
+    <p class="sub">Аккаунт работает и на сайте, и в приложении PGL-RUDesk</p>
+    <label for="rEmail">Почта</label>
+    <input id="rEmail" type="email" autocomplete="username" required>
+    <label for="rPass">Пароль</label>
+    <input id="rPass" type="password" autocomplete="new-password" required>
+    <label for="rPass2">Повторите пароль</label>
+    <input id="rPass2" type="password" autocomplete="new-password" required>
+    <button class="btn wide" id="regBtn" type="submit">Зарегистрироваться</button>
+    <div class="msg" id="regMsg"></div>
+    <div class="switch">Уже есть аккаунт? <a href="#login">Войти</a></div>
+  </form>
+</section>
+
+<!-- Кабинет -->
+<section id="viewCabinet" class="wrap hidden">
+  <div class="hello">
+    <h1 id="helloName">Личный кабинет</h1>
+    <p>Ваш аккаунт PGL-RUDesk: устройства, история входов и настройки.</p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Профиль</h2>
+      <div class="kv">
+        <span>Почта</span><span id="pEmail">—</span>
+        <span>Роль</span><span id="pRole">Пользователь</span>
+      </div>
+      <p class="empty" style="margin-top:14px">Этой почтой и паролем входите в приложении: Настройки → Аккаунт → Войти.</p>
+    </div>
+    <div class="card">
+      <h2>Смена пароля</h2>
+      <form id="pwdForm" novalidate>
+        <label for="oldPwd" style="margin-top:0">Текущий пароль</label>
+        <input id="oldPwd" type="password" autocomplete="current-password">
+        <label for="newPwd">Новый пароль</label>
+        <input id="newPwd" type="password" autocomplete="new-password">
+        <label for="newPwd2">Повторите новый пароль</label>
+        <input id="newPwd2" type="password" autocomplete="new-password">
+        <button class="btn" type="submit" style="margin-top:16px" id="pwdBtn">Сменить пароль</button>
+        <div class="msg" id="pwdMsg"></div>
+      </form>
+    </div>
+    <div class="card full">
+      <h2>Мои устройства</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>ID</th><th>Имя</th><th class="hide-m">Система</th><th>Был в сети</th></tr></thead>
+        <tbody id="peersBody"><tr><td colspan="4" class="empty">Загрузка…</td></tr></tbody>
+      </table></div>
+      <p class="empty" style="margin-top:10px">Устройство появится здесь после входа в аккаунт в приложении PGL-RUDesk на этом устройстве.</p>
+    </div>
+    <div class="card full">
+      <h2>История входов</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Дата</th><th>Откуда</th><th class="hide-m">IP-адрес</th></tr></thead>
+        <tbody id="logBody"><tr><td colspan="3" class="empty">Загрузка…</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card full">
+      <h2>Скачать приложение</h2>
+      <div class="dl">
+        <a class="btn ghost" href="__DL__PGL-RUDesk-x86_64.exe">Windows</a>
+        <a class="btn ghost" href="__DL__PGL-RUDesk-universal.apk">Android</a>
+        <a class="btn ghost" href="__DL__PGL-RUDesk-x86_64.deb">Linux</a>
+        <a class="btn ghost" href="__DL__PGL-RUDesk-aarch64.dmg">macOS</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var API = '/api/admin';
+  var TOKEN_KEY = 'pgl_token';
+  var $ = function (id) { return document.getElementById(id); };
+  var captchaId = '';
+
+  function token() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+  function setToken(t) { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+  function call(method, path, body) {
+    var opt = { method: method, headers: { 'Content-Type': 'application/json' } };
+    if (token()) opt.headers['api-token'] = token();
+    if (body) opt.body = JSON.stringify(body);
+    return fetch(API + path, opt).then(function (r) {
+      return r.json().catch(function () { return { code: -1, message: 'Ошибка сервера (HTTP ' + r.status + ')' }; });
+    }, function () { return { code: -1, message: 'Нет связи с сервером. Попробуйте позже.' }; });
+  }
+
+  function msg(el, text, ok) { el.textContent = text || ''; el.className = 'msg ' + (ok ? 'ok' : 'err'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  function show(view) {
+    ['viewLogin', 'viewRegister', 'viewCabinet'].forEach(function (v) { $(v).classList.toggle('hidden', v !== view); });
+    var inCab = view === 'viewCabinet';
+    $('logoutBtn').classList.toggle('hidden', !inCab);
+    $('who').classList.toggle('hidden', !inCab);
+  }
+
+  function route() {
+    if (token()) { openCabinet(); return; }
+    show(location.hash === '#register' ? 'viewRegister' : 'viewLogin');
+  }
+
+  function loadCaptcha() {
+    call('GET', '/captcha').then(function (r) {
+      if (r.code === 0 && r.data && r.data.captcha) {
+        captchaId = r.data.captcha.id;
+        $('lCaptchaImg').src = r.data.captcha.b64;
+        $('lCaptchaBox').style.display = 'block';
+      }
+    });
+  }
+  $('lCaptchaImg').onclick = loadCaptcha;
+
+  $('loginForm').onsubmit = function (e) {
+    e.preventDefault();
+    var email = $('lEmail').value.trim(), pass = $('lPass').value;
+    if (!emailRe.test(email)) return msg($('loginMsg'), 'Введите почту');
+    if (!pass) return msg($('loginMsg'), 'Введите пароль');
+    var body = { username: email, password: pass, platform: 'web' };
+    if ($('lCaptchaBox').style.display === 'block') { body.captcha = $('lCaptcha').value.trim(); body.captcha_id = captchaId; }
+    $('loginBtn').disabled = true; msg($('loginMsg'), '');
+    call('POST', '/login', body).then(function (r) {
+      $('loginBtn').disabled = false;
+      if (r.code === 0 && r.data && r.data.token) { setToken(r.data.token); location.hash = ''; openCabinet(); return; }
+      msg($('loginMsg'), r.message || 'Не удалось войти');
+      if (r.code === 110 || /капч/i.test(r.message || '') || $('lCaptchaBox').style.display === 'block') { $('lCaptcha').value = ''; loadCaptcha(); }
+    });
+  };
+
+  $('regForm').onsubmit = function (e) {
+    e.preventDefault();
+    var email = $('rEmail').value.trim(), p1 = $('rPass').value, p2 = $('rPass2').value;
+    if (!emailRe.test(email)) return msg($('regMsg'), 'Введите почту, например name@mail.ru');
+    if (email.length > 32) return msg($('regMsg'), 'Почта длиннее 32 символов не поддерживается');
+    if (p1.length < 6) return msg($('regMsg'), 'Пароль — минимум 6 символов');
+    if (p1.length > 32) return msg($('regMsg'), 'Пароль — максимум 32 символа');
+    if (p1 !== p2) return msg($('regMsg'), 'Пароли не совпадают');
+    $('regBtn').disabled = true; msg($('regMsg'), '');
+    call('POST', '/user/register', { username: email, email: email, password: p1, confirm_password: p2 }).then(function (r) {
+      $('regBtn').disabled = false;
+      if (r.code === 0 && r.data && r.data.token) { setToken(r.data.token); location.hash = ''; openCabinet(); return; }
+      var m = r.message || '';
+      if (!m || /Операция не удалась/.test(m)) m = 'Эта почта уже зарегистрирована';
+      if (/закрыт|closed/i.test(m)) m = 'Регистрация сейчас закрыта';
+      msg($('regMsg'), m);
+    });
+  };
+
+  function fmtTime(v) {
+    if (!v) return '—';
+    var d = typeof v === 'number' ? new Date(v * 1000) : new Date(String(v).replace(' ', 'T'));
+    return isNaN(d) ? esc(v) : d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function clientName(c) { return { webadmin: 'Сайт', app: 'Приложение', webclient: 'Веб-клиент' }[c] || esc(c || '—'); }
+
+  function openCabinet() {
+    call('GET', '/user/current').then(function (r) {
+      if (r.code !== 0 || !r.data) { setToken(''); show('viewLogin'); if (r.code !== -1) msg($('loginMsg'), 'Сессия истекла, войдите снова'); return; }
+      var u = r.data, isAdmin = (u.route_names || []).indexOf('*') >= 0;
+      $('who').textContent = u.email || u.username;
+      $('pEmail').textContent = u.email || u.username;
+      $('pRole').innerHTML = isAdmin ? '<span class="tag">Администратор</span>' : 'Пользователь';
+      $('helloName').textContent = 'Здравствуйте, ' + (u.nickname || u.email || u.username);
+      $('adminLink').classList.toggle('hidden', !isAdmin);
+      show('viewCabinet');
+      loadPeers(); loadLog();
+    });
+  }
+
+  function loadPeers() {
+    call('GET', '/my/peer/list?page=1&page_size=50').then(function (r) {
+      var list = (r.data && r.data.list) || [];
+      $('peersBody').innerHTML = list.length ? list.map(function (p) {
+        return '<tr><td><span class="tag">' + esc(p.id) + '</span></td><td>' + esc(p.alias || p.hostname || '—') +
+          '</td><td class="hide-m">' + esc(p.os || '—') + '</td><td>' + fmtTime(p.last_online_time) + '</td></tr>';
+      }).join('') : '<tr><td colspan="4" class="empty">Пока нет устройств</td></tr>';
+    });
+  }
+
+  function loadLog() {
+    call('GET', '/my/login_log/list?page=1&page_size=10').then(function (r) {
+      var list = (r.data && r.data.list) || [];
+      $('logBody').innerHTML = list.length ? list.map(function (l) {
+        return '<tr><td>' + fmtTime(l.created_at) + '</td><td>' + clientName(l.client) + '</td><td class="hide-m">' + esc(l.ip) + '</td></tr>';
+      }).join('') : '<tr><td colspan="3" class="empty">Пока пусто</td></tr>';
+    });
+  }
+
+  $('pwdForm').onsubmit = function (e) {
+    e.preventDefault();
+    var o = $('oldPwd').value, n1 = $('newPwd').value, n2 = $('newPwd2').value;
+    if (!o) return msg($('pwdMsg'), 'Введите текущий пароль');
+    if (n1.length < 6) return msg($('pwdMsg'), 'Новый пароль — минимум 6 символов');
+    if (n1.length > 32) return msg($('pwdMsg'), 'Новый пароль — максимум 32 символа');
+    if (n1 !== n2) return msg($('pwdMsg'), 'Пароли не совпадают');
+    $('pwdBtn').disabled = true;
+    call('POST', '/user/changeCurPwd', { old_password: o, new_password: n1 }).then(function (r) {
+      $('pwdBtn').disabled = false;
+      if (r.code === 0) { msg($('pwdMsg'), 'Пароль изменён', true); $('pwdForm').reset(); }
+      else msg($('pwdMsg'), r.message || 'Не удалось сменить пароль');
+    });
+  };
+
+  $('logoutBtn').onclick = function () {
+    call('POST', '/logout').then(function () { setToken(''); location.hash = ''; show('viewLogin'); });
+  };
+
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

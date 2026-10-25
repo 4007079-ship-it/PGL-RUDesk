@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PGL-RUDesk — удалённый доступ</title>
+<meta name="description" content="PGL-RUDesk — удалённый доступ к компьютерам и телефонам через собственный сервер">
+<link rel="icon" href="data:image/svg+xml,__FAVICON__">
+<style>
+  :root {
+    --bg: #0f0f12; --panel: #18191e; --card: #202128; --line: #2c2d35;
+    --text: #ececef; --muted: #9a9ba3; --pink: #f64af6; --pink-d: #c93ac9; --ok: #32bea6;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  header { position: sticky; top: 0; z-index: 5; background: rgba(15,15,18,.88);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 18px; }
+  .brand svg { width: 32px; height: 32px; border-radius: 7px; }
+  nav { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--pink); }
+  .acct { display: flex; align-items: center; gap: 10px; margin-left: 22px; }
+  .acct .login { font-size: 14px; color: var(--text); text-decoration: none; }
+  .acct .login:hover { color: var(--pink); }
+  .btn-sm { height: 36px; padding: 0 16px; font-size: 14px; }
+
+  .stripes { position: absolute; inset: 0; z-index: 0; opacity: .13; pointer-events: none;
+    background: repeating-linear-gradient(180deg, var(--pink) 0 22px, transparent 22px 52px);
+    mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+  .hero { position: relative; overflow: hidden; padding: 84px 0 76px; border-bottom: 1px solid var(--line); }
+  .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.2fr .8fr; gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -.5px; }
+  .hero h1 span { color: var(--pink); }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 0 30px; max-width: 520px; }
+  .logo-big { width: 100%; max-width: 320px; justify-self: center; border-radius: 28px;
+    outline: 1px solid var(--line); outline-offset: 10px; }
+  .logo-big svg { display: block; width: 100%; height: auto; border-radius: 28px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px; border-radius: 10px;
+    font-weight: 600; text-decoration: none; font-size: 15px; transition: background .15s, color .15s; }
+  .btn-main { background: var(--pink); color: #fff; }
+  .btn-main:hover { background: var(--pink-d); }
+  .btn-ghost { border: 1px solid var(--pink); color: var(--pink); margin-left: 10px; }
+  .btn-ghost:hover { background: rgba(246,74,246,.1); }
+
+  section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 30px; margin: 0 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 34px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .dl { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 18px;
+    text-decoration: none; display: flex; flex-direction: column; gap: 6px; transition: border-color .15s, transform .15s; }
+  .dl:hover { border-color: var(--pink); transform: translateY(-2px); }
+  .dl svg { width: 34px; height: 34px; fill: var(--pink); margin-bottom: 8px; }
+  .dl b { font-size: 17px; }
+  .dl small { color: var(--muted); font-size: 13px; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 18px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: s; }
+  .step { background: var(--panel); border-radius: 14px; padding: 24px 20px; border-left: 4px solid var(--pink); }
+  .step::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 8px; background: #000; color: var(--pink); font-weight: 700; margin-bottom: 12px; }
+  .step h3 { margin: 0 0 6px; font-size: 17px; }
+  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px 30px; }
+  .feat div { padding-left: 16px; border-left: 2px solid var(--line); }
+  .feat h3 { margin: 0 0 4px; font-size: 16px; }
+  .feat p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .server { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(50,190,166,.18); }
+  code { font-family: ui-monospace, Consolas, monospace; background: #000; color: var(--pink);
+    padding: 3px 8px; border-radius: 6px; font-size: 14px; }
+
+  footer { padding: 34px 0 44px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; }
+  footer a { color: var(--pink); text-decoration: none; }
+
+  @media (max-width: 820px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+    .logo-big { max-width: 200px; order: -1; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps, .feat { grid-template-columns: 1fr; }
+    nav { display: none; }
+    .acct { margin-left: auto; }
+    .btn-ghost { margin: 12px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#">__LOGO__<span>PGL-RUDesk</span></a>
+    <nav>
+      <a href="#download">Скачать</a>
+      <a href="#how">Как подключиться</a>
+      <a href="#features">Возможности</a>
+    </nav>
+    <div class="acct">
+      <a class="login" href="/account/">Войти</a>
+      <a class="btn btn-main btn-sm" href="/account/#register">Регистрация</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="stripes"></div>
+  <div class="wrap">
+    <div>
+      <h1>Удалённый доступ <span>без посредников</span></h1>
+      <p>PGL-RUDesk подключает к компьютерам и телефонам через собственный сервер. Экран, мышь, клавиатура и файлы — с шифрованием и без чужих облаков.</p>
+      <a class="btn btn-main" href="#download">Скачать</a>
+      <a class="btn btn-ghost" href="/account/#register">Регистрация</a>
+    </div>
+    <div class="logo-big">__LOGO__</div>
+  </div>
+</div>
+
+<section id="download">
+  <div class="wrap">
+    <h2>Скачать PGL-RUDesk</h2>
+    <p class="lead">Сервер уже вписан в программу — после установки ничего настраивать не нужно.</p>
+    <div class="grid">
+      <a class="dl" data-os="Windows" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.exe">
+        <svg viewBox="0 0 24 24"><path d="M3 5.5 10 4.5v7H3zM11 4.4 21 3v8.5H11zM3 12.5h7v7L3 18.5zM11 12.5h10V21l-10-1.4z"/></svg>
+        <b>Windows</b><small>Установщик .exe · 64-бит</small>
+      </a>
+      <a class="dl" data-os="Android" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-universal.apk">
+        <svg viewBox="0 0 24 24"><path d="M6 9h12v8a1 1 0 0 1-1 1h-1v3h-2v-3h-4v3H8v-3H7a1 1 0 0 1-1-1zM4 9h1v7H4zm15 0h1v7h-1zM7.5 4 6.3 2.4l.6-.4 1.3 1.7A6 6 0 0 1 12 3a6 6 0 0 1 3.8.7L17.1 2l.6.4L16.5 4A5 5 0 0 1 18 8H6a5 5 0 0 1 1.5-4zM9.5 5.5a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6zm5 0a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6z"/></svg>
+        <b>Android</b><small>Приложение .apk</small>
+      </a>
+      <a class="dl" data-os="Linux" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-x86_64.deb">
+        <svg viewBox="0 0 24 24"><path d="M12 2c-2.2 0-3.5 1.9-3.5 4.3 0 1.2.3 2.1.1 3.2-.3 1.6-2.4 3.4-3.1 5.7-.4 1.3.3 2.1 1 2.3.4 1.4 1.7 3 3.4 3.3.9.2 1.5-.4 2.1-.4s1.2.6 2.1.4c1.7-.3 3-1.9 3.4-3.3.7-.2 1.4-1 1-2.3-.7-2.3-2.8-4.1-3.1-5.7-.2-1.1.1-2 .1-3.2C15.5 3.9 14.2 2 12 2zm-1.5 4a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6zm3 0a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6zM12 8.6l1.8.9-1.8 1-1.8-1z"/></svg>
+        <b>Linux</b><small>Пакет .deb · Ubuntu / Debian</small>
+      </a>
+      <a class="dl" data-os="macOS" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/download/pgl-rudesk/PGL-RUDesk-aarch64.dmg">
+        <svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9s-2-.9-3.3-.9C6 6.9 4.5 7.9 3.6 9.5c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3 0 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1.1-2.8-4.2zM14 5.2c.7-.8 1.2-2 1-3.2-1 0-2.2.7-3 1.5-.6.7-1.2 1.9-1 3.1 1.1.1 2.3-.6 3-1.4z"/></svg>
+        <b>macOS</b><small>Образ .dmg · Apple M1–M4</small>
+      </a>
+    </div>
+    <p class="note">Другие варианты — macOS на Intel, .msi, .rpm, ARM — на <a href="__RELEASES__" style="color:var(--pink)">странице всех файлов</a>.</p>
+    <p class="note">macOS: при первом запуске откройте Системные настройки → Конфиденциальность и безопасность → «Всё равно открыть».</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Как подключиться</h2>
+    <p class="lead">Три шага — и вы видите экран другого устройства.</p>
+    <div class="steps">
+      <div class="step"><h3>Установите на оба устройства</h3><p>И на то, с которого подключаетесь, и на то, к которому.</p></div>
+      <div class="step"><h3>Узнайте ID и пароль</h3><p>Они показаны в левой части окна на управляемом устройстве.</p></div>
+      <div class="step"><h3>Введите ID и подключитесь</h3><p>Впишите ID в поле справа, нажмите «Подключиться» и введите пароль.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Возможности</h2>
+    <p class="lead">Всё, что нужно для работы на расстоянии.</p>
+    <div class="feat">
+      <div><h3>Полное управление</h3><p>Экран, мышь, клавиатура и буфер обмена.</p></div>
+      <div><h3>Передача файлов</h3><p>В обе стороны, с продолжением после обрыва.</p></div>
+      <div><h3>Шифрование</h3><p>Сквозное шифрование каждого соединения.</p></div>
+      <div><h3>Свой сервер</h3><p>Данные не проходят через сторонние сервисы.</p></div>
+      <div><h3>Локальная сеть</h3><p>Прямое подключение по IP без сервера.</p></div>
+      <div><h3>Все платформы</h3><p>Windows, macOS, Linux и Android.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="server"><span class="dot"></span><b>Сервер PGL-RUDesk</b>
+      <span style="color:var(--muted)">ID-сервер:</span><code>__SERVER__</code>
+      <span style="color:var(--muted);font-size:14px">Уже настроен в программе. Поменять: Настройки → Сеть → ID/Relay сервер.</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© SMV · <a href="mailto:4007079@gmail.com">4007079@gmail.com</a> · <a href="https://github.com/4007079-ship-it/PGL-RUDesk">GitHub</a></span>
+    <span>На основе RustDesk © Purslane Tech Pte. Ltd. · Лицензия AGPL-3.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
