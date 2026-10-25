@@ -14,6 +14,8 @@ ENV_FILE="/etc/pgl-rudesk-api.env"
 KEY_FILE="/var/lib/pgl-rudesk/id_ed25519.pub"
 SVC_USER="pgl-rudesk-api"
 PORT=21114
+INTERNAL_PORT=21124
+ADMIN_PATH="pgl-odmin"
 
 green() { echo -e "\e[32m$*\e[0m"; }
 yellow(){ echo -e "\e[33m$*\e[0m"; }
@@ -31,7 +33,7 @@ esac
 
 green "==> Установка зависимостей"
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl ca-certificates openssl python3 >/dev/null
+DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl ca-certificates openssl python3 nginx >/dev/null
 
 green "==> Загрузка сервера аккаунтов ($ARCH)"
 TMP="$(mktemp -d)"
@@ -156,7 +158,8 @@ RUSTDESK_API_APP_REGISTER_STATUS=1
 RUSTDESK_API_APP_WEB_CLIENT=0
 RUSTDESK_API_APP_WEB_SSO=false
 RUSTDESK_API_ADMIN_TITLE=PGL-RUDesk
-RUSTDESK_API_GIN_API_ADDR=0.0.0.0:${PORT}
+RUSTDESK_API_GIN_API_ADDR=127.0.0.1:${INTERNAL_PORT}
+RUSTDESK_API_GIN_TRUST_PROXY=127.0.0.1
 RUSTDESK_API_RUSTDESK_ID_SERVER=${IP}:21116
 RUSTDESK_API_RUSTDESK_RELAY_SERVER=${IP}:21117
 RUSTDESK_API_RUSTDESK_API_SERVER=http://${IP}:${PORT}
@@ -187,6 +190,36 @@ EOF
 systemctl daemon-reload
 systemctl enable --now pgl-rudesk-api >/dev/null
 
+green "==> Адрес панели: /${ADMIN_PATH}/"
+cat > /etc/nginx/sites-available/pgl-rudesk-api <<NGINXCONF
+server {
+    listen ${PORT};
+    listen [::]:${PORT};
+    server_name _;
+    server_tokens off;
+    client_max_body_size 20m;
+
+    location = /${ADMIN_PATH} { return 301 /${ADMIN_PATH}/; }
+    location /${ADMIN_PATH}/ {
+        proxy_pass http://127.0.0.1:${INTERNAL_PORT}/_admin/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+    location /_admin { return 404; }
+    location / {
+        proxy_pass http://127.0.0.1:${INTERNAL_PORT};
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+}
+NGINXCONF
+ln -sf /etc/nginx/sites-available/pgl-rudesk-api /etc/nginx/sites-enabled/pgl-rudesk-api
+nginx -t -q
+systemctl enable --now nginx >/dev/null
+systemctl reload nginx
+
 if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
   ufw allow ${PORT}/tcp >/dev/null
 fi
@@ -212,7 +245,7 @@ green "================================================================"
 green "  Сервер аккаунтов PGL-RUDesk запущен"
 green "================================================================"
 echo "  API-сервер      : http://${IP}:${PORT}"
-echo "  Панель админа   : http://${IP}:${PORT}/_admin/"
+echo "  Панель админа   : http://${IP}:${PORT}/${ADMIN_PATH}/"
 if [[ -n "$ADMIN_PWD" ]]; then
   echo "  Логин админа    : admin"
   echo "  Пароль админа   : ${ADMIN_PWD}"
