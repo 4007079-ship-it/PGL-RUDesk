@@ -1,0 +1,18 @@
+name: PGL-RUDesk Build
+
+# Ручной запуск: вкладка Actions → «PGL-RUDesk Build» → Run workflow.
+# Готовые установщики появятся в разделе Releases под тегом pgl-rudesk.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: true
+      upload-tag: "pgl-rudesk"
+      publish-update-metadata: false

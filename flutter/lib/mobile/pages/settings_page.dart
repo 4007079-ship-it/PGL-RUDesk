@@ -1193,19 +1193,22 @@ void showAbout(OverlayDialogManager dialogManager) {
     return CustomAlertDialog(
       title: Text(translate('About RustDesk')),
       content: Wrap(direction: Axis.vertical, spacing: 12, children: [
+        // PGL-RUDesk patch: автор и контакты
         Text('Version: $version'),
+        Text('Автор: SMV'),
         InkWell(
             onTap: () async {
-              const url = 'https://rustdesk.com/';
-              await launchUrl(Uri.parse(url));
+              await launchUrl(Uri.parse('mailto:4007079@gmail.com'));
             },
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('rustdesk.com',
+              child: Text('4007079@gmail.com',
                   style: TextStyle(
                     decoration: TextDecoration.underline,
                   )),
             )),
+        Text('На основе RustDesk © Purslane Tech Pte. Ltd. · Лицензия AGPL-3.0',
+            style: TextStyle(fontSize: 11, color: Colors.grey)),
       ]),
       actions: [],
     );
