@@ -44,7 +44,8 @@ var done=function(){try{localStorage.removeItem('access_token');localStorage.rem
 alert('Панель управления доступна только администратору. Личный кабинет пользователя: '+location.protocol+'//'+location.hostname+'/account/');
 location.href=location.pathname+'#/login';location.reload()};
 fetch('/api/admin/logout',{method:'POST',headers:{'api-token':t}}).then(done,done)}).catch(function(){busy=false})}
-check();setInterval(check,1000)})();"""
+check();setInterval(check,1000)})();
+(function(){function add(){var h=document.querySelector('.app-header');if(!h||document.getElementById('pgl-mail-btn'))return;var a=document.createElement('a');a.id='pgl-mail-btn';a.href='./pgl-mail.html';a.textContent='\u2709 \u041f\u043e\u0447\u0442\u0430';a.style.cssText='display:inline-flex;align-items:center;align-self:center;height:30px;line-height:30px;margin-right:18px;color:#f64af6;text-decoration:none;font-weight:600;border:1px solid #f64af6;border-radius:8px;padding:0 12px;font-size:14px;white-space:nowrap';var r=h.lastElementChild;r.insertBefore(a,r.firstChild)}fetch('/api/pgl/health').then(function(r){if(r.ok){add();setInterval(add,1000)}}).catch(function(){})})();"""
 
 HELLO = (
     "### Добро пожаловать в панель PGL-RUDesk, ***{{username}}***\n\n"

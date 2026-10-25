@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Почта — PGL-RUDesk</title>
+<style>
+  :root { --bg:#0f0f12; --panel:#18191e; --card:#202128; --line:#2c2d35; --text:#ececef; --muted:#9a9ba3;
+    --pink:#f64af6; --ok:#32bea6; --warn:#f0b429; --err:#ff6b81; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { height:50px; display:flex; align-items:center; gap:14px; padding:0 20px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header b { font-size:16px; }
+  header a { color:var(--muted); text-decoration:none; font-size:14px; }
+  header a:hover { color:var(--pink); }
+  header .mode { margin-left:auto; color:var(--muted); font-size:13px; }
+  main { padding:20px; max-width:1200px; margin:0 auto; }
+  .top { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+  .chip { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 14px; }
+  .chip b { font-size:18px; margin-right:6px; }
+  .chip.ok b { color:var(--ok); } .chip.warn b { color:var(--warn); } .chip.err b { color:var(--err); }
+  input[type=search] { margin-left:auto; height:36px; width:260px; border-radius:8px; border:1px solid var(--line);
+    background:#121317; color:var(--text); padding:0 12px; outline:none; }
+  input[type=search]:focus { border-color:var(--pink); }
+  .box { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; color:var(--muted); font-weight:500; padding:10px 12px; border-bottom:1px solid var(--line); background:#141519; }
+  td { padding:10px 12px; border-bottom:1px solid #222329; vertical-align:top; }
+  tr.row { cursor:pointer; } tr.row:hover td { background:#1d1e24; }
+  .st { display:inline-block; padding:2px 9px; border-radius:6px; font-size:12px; white-space:nowrap; }
+  .st.delivered,.st.sent { background:#123129; color:var(--ok); }
+  .st.queued,.st.sending { background:#33290f; color:var(--warn); }
+  .st.rejected,.st.failed { background:#3a1620; color:var(--err); }
+  .code { color:var(--pink); font-weight:700; letter-spacing:2px; }
+  .detail td { background:#141519; }
+  pre { margin:0; white-space:pre-wrap; font:13px/1.5 ui-monospace,Consolas,monospace; color:#d6d6db; }
+  .why { color:var(--muted); font-size:12px; margin-top:8px; }
+  .pager { display:flex; gap:8px; align-items:center; justify-content:flex-end; padding:12px; }
+  .pager button { height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; }
+  .pager button:disabled { opacity:.4; cursor:default; }
+  .empty { padding:30px; text-align:center; color:var(--muted); }
+  .deny { max-width:420px; margin:80px auto; text-align:center; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:30px; }
+  .deny a { color:var(--pink); }
+  @media (max-width:760px) { .hide-m { display:none; } input[type=search] { width:100%; margin-left:0; } }
+</style>
+</head>
+<body>
+<header>
+  <a href="./">← Панель</a>
+  <b>Почта</b>
+  <span class="mode" id="mode"></span>
+</header>
+<main id="main">
+  <div class="top">
+    <div class="chip"><b id="sTotal">0</b>всего</div>
+    <div class="chip ok"><b id="sOk">0</b>доставлено</div>
+    <div class="chip warn"><b id="sWait">0</b>в очереди</div>
+    <div class="chip err"><b id="sErr">0</b>не доставлено</div>
+    <input type="search" id="q" placeholder="Поиск по почте получателя">
+  </div>
+  <div class="box">
+    <table>
+      <thead><tr><th>Время</th><th>Кому</th><th class="hide-m">Тип</th><th>Код</th><th>Статус</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="empty">Загрузка…</td></tr></tbody>
+    </table>
+    <div class="pager"><span id="pinfo" style="color:var(--muted)"></span>
+      <button id="prev">←</button><button id="next">→</button></div>
+  </div>
+</main>
+<script>
+(function () {
+  var page = 1, q = '', open = {}, timer;
+  var token = ''; try { token = localStorage.getItem('access_token') || ''; } catch (e) {}
+  var $ = function (id) { return document.getElementById(id); };
+  var ST = { delivered: 'Доставлено', sent: 'Отправлено', queued: 'В очереди', sending: 'Отправляется',
+    rejected: 'Отклонено', failed: 'Ошибка отправки' };
+  var KIND = { reset_code: 'Код восстановления', password_changed: 'Пароль изменён' };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function fmt(ts) { return new Date(ts * 1000).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+  function codeOf(r) { var m = /:\s*(\d{6})\s*$/.exec(r.subject || ''); return m ? m[1] : ''; }
+
+  function deny() {
+    $('main').innerHTML = '<div class="deny"><h2>Только для администратора</h2>' +
+      '<p>Войдите в панель управления под учётной записью администратора.</p><p><a href="./#/login">Войти</a></p></div>';
+  }
+
+  function load() {
+    if (!token) return deny();
+    fetch('/api/pgl/admin/mail?page=' + page + '&q=' + encodeURIComponent(q), { headers: { 'api-token': token } })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (r.code === 403) return deny();
+        if (r.code !== 0) throw new Error(r.message);
+        var d = r.data, s = d.stats || {};
+        $('mode').textContent = 'Отправитель: ' + d.from + ' · ' + (d.mode === 'local' ? 'своя почта (Postfix)' : 'внешний SMTP');
+        $('sTotal').textContent = Object.keys(s).reduce(function (a, k) { return a + s[k]; }, 0);
+        $('sOk').textContent = (s.delivered || 0) + (s.sent || 0);
+        $('sWait').textContent = (s.queued || 0) + (s.sending || 0);
+        $('sErr').textContent = (s.rejected || 0) + (s.failed || 0);
+        var pages = Math.max(1, Math.ceil(d.total / d.page_size));
+        $('pinfo').textContent = 'Стр. ' + d.page + ' из ' + pages;
+        $('prev').disabled = d.page <= 1; $('next').disabled = d.page >= pages;
+        if (!d.list.length) { $('rows').innerHTML = '<tr><td colspan="5" class="empty">Писем пока нет</td></tr>'; return; }
+        $('rows').innerHTML = d.list.map(function (r) {
+          var html = '<tr class="row" data-id="' + r.id + '"><td>' + fmt(r.created) + '</td><td>' + esc(r.to_addr) +
+            '</td><td class="hide-m">' + esc(KIND[r.kind] || r.kind) + '</td><td class="code">' + esc(codeOf(r)) +
+            '</td><td><span class="st ' + esc(r.status) + '">' + esc(ST[r.status] || r.status) + '</span></td></tr>';
+          if (open[r.id]) html += '<tr class="detail"><td colspan="5"><b>' + esc(r.subject) + '</b><pre>' + esc(r.body) +
+            '</pre><div class="why">Статус: ' + esc(r.detail || '—') + (r.ip ? ' · запрос с IP ' + esc(r.ip) : '') + '</div></td></tr>';
+          return html;
+        }).join('');
+      })
+      .catch(function (e) { $('rows').innerHTML = '<tr><td colspan="5" class="empty">Ошибка загрузки: ' + esc(e.message) + '</td></tr>'; });
+  }
+
+  $('rows').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.row'); if (!tr) return;
+    var id = tr.getAttribute('data-id'); open[id] = !open[id]; load();
+  });
+  $('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { q = $('q').value.trim(); page = 1; load(); }, 300); });
+  $('prev').onclick = function () { page--; load(); };
+  $('next').onclick = function () { page++; load(); };
+  load(); setInterval(load, 15000);
+})();
+</script>
+</body>
+</html>

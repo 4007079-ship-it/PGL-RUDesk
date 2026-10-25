@@ -46,6 +46,11 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
     location /_admin { return 404; }
+    location /api/pgl/ {
+        proxy_pass http://127.0.0.1:21125;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+    }
     location /api/ {
         proxy_pass http://${API_INTERNAL};
         proxy_set_header Host \$host;

@@ -91,7 +91,35 @@
     </div>
     <button class="btn wide" id="loginBtn" type="submit">Войти</button>
     <div class="msg" id="loginMsg"></div>
-    <div class="switch">Нет аккаунта? <a href="#register">Зарегистрироваться</a></div>
+    <div class="switch"><a href="#forgot">Забыли пароль?</a></div>
+    <div class="switch" style="margin-top:8px">Нет аккаунта? <a href="#register">Зарегистрироваться</a></div>
+  </form>
+</section>
+
+<!-- Восстановление пароля -->
+<section id="viewForgot" class="auth hidden">
+  <form class="box" id="fForm1" novalidate>
+    <h1>Восстановление пароля</h1>
+    <p class="sub">Пришлём на почту 6-значный код</p>
+    <label for="fEmail">Почта</label>
+    <input id="fEmail" type="email" autocomplete="username" required>
+    <button class="btn wide" id="fBtn1" type="submit">Получить код</button>
+    <div class="msg" id="fMsg1"></div>
+    <div class="switch"><a href="#login">Вернуться ко входу</a></div>
+  </form>
+  <form class="box hidden" id="fForm2" novalidate>
+    <h1>Новый пароль</h1>
+    <p class="sub" id="fSent">Код отправлен. Проверьте также папку «Спам».</p>
+    <label for="fCode">Код из письма</label>
+    <input id="fCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"
+      style="letter-spacing:6px;font-size:20px;text-align:center">
+    <label for="fPass">Новый пароль</label>
+    <input id="fPass" type="password" autocomplete="new-password">
+    <label for="fPass2">Повторите пароль</label>
+    <input id="fPass2" type="password" autocomplete="new-password">
+    <button class="btn wide" id="fBtn2" type="submit">Сменить пароль</button>
+    <div class="msg" id="fMsg2"></div>
+    <div class="switch"><a href="#" id="fAgain">Отправить код ещё раз</a> · <a href="#login">Ко входу</a></div>
   </form>
 </section>
 
@@ -192,7 +220,7 @@
   var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
   function show(view) {
-    ['viewLogin', 'viewRegister', 'viewCabinet'].forEach(function (v) { $(v).classList.toggle('hidden', v !== view); });
+    ['viewLogin', 'viewRegister', 'viewForgot', 'viewCabinet'].forEach(function (v) { $(v).classList.toggle('hidden', v !== view); });
     var inCab = view === 'viewCabinet';
     $('logoutBtn').classList.toggle('hidden', !inCab);
     $('who').classList.toggle('hidden', !inCab);
@@ -200,6 +228,7 @@
 
   function route() {
     if (token()) { openCabinet(); return; }
+    if (location.hash === '#forgot') { $('fForm1').classList.remove('hidden'); $('fForm2').classList.add('hidden'); show('viewForgot'); return; }
     show(location.hash === '#register' ? 'viewRegister' : 'viewLogin');
   }
 
@@ -301,6 +330,40 @@
       $('pwdBtn').disabled = false;
       if (r.code === 0) { msg($('pwdMsg'), 'Пароль изменён', true); $('pwdForm').reset(); }
       else msg($('pwdMsg'), r.message || 'Не удалось сменить пароль');
+    });
+  };
+
+  function pgl(path, body) {
+    return fetch('/api/pgl' + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return { code: -1, message: 'Восстановление пароля пока не настроено на сервере' }; }); },
+        function () { return { code: -1, message: 'Нет связи с сервером. Попробуйте позже.' }; });
+  }
+  function requestCode() {
+    var email = $('fEmail').value.trim();
+    if (!emailRe.test(email)) { msg($('fMsg1'), 'Введите почту'); return; }
+    $('fBtn1').disabled = true; msg($('fMsg1'), '');
+    pgl('/reset/request', { email: email }).then(function (r) {
+      $('fBtn1').disabled = false;
+      if (r.code !== 0) { msg($('fMsg1'), r.message); msg($('fMsg2'), r.message); return; }
+      $('fSent').textContent = r.message; $('fForm1').classList.add('hidden'); $('fForm2').classList.remove('hidden');
+      msg($('fMsg2'), ''); $('fCode').focus();
+    });
+  }
+  $('fForm1').onsubmit = function (e) { e.preventDefault(); requestCode(); };
+  $('fAgain').onclick = function (e) { e.preventDefault(); requestCode(); };
+  $('fForm2').onsubmit = function (e) {
+    e.preventDefault();
+    var code = $('fCode').value.replace(/\D/g, ''), p1 = $('fPass').value, p2 = $('fPass2').value;
+    if (code.length !== 6) return msg($('fMsg2'), 'Введите 6 цифр из письма');
+    if (p1.length < 6) return msg($('fMsg2'), 'Пароль — минимум 6 символов');
+    if (p1.length > 32) return msg($('fMsg2'), 'Пароль — максимум 32 символа');
+    if (p1 !== p2) return msg($('fMsg2'), 'Пароли не совпадают');
+    $('fBtn2').disabled = true;
+    pgl('/reset/confirm', { email: $('fEmail').value.trim(), code: code, password: p1 }).then(function (r) {
+      $('fBtn2').disabled = false;
+      if (r.code !== 0) return msg($('fMsg2'), r.message);
+      $('fForm2').reset(); $('lEmail').value = $('fEmail').value.trim(); location.hash = '#login';
+      setTimeout(function () { msg($('loginMsg'), r.message, true); $('lPass').focus(); }, 50);
     });
   };
 
