@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="pgl/logo-source/pgl-rudesk-logo.svg" alt="PGL-RUDesk" width="160"><br>
-  <b>PGL-RUDesk</b><br>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="pgl/banner-dark.png">
+    <img src="pgl/banner-light.png" alt="PGL-RUDesk" height="96">
+  </picture><br><br>
   Удалённый доступ к компьютерам и телефонам через собственный сервер
 </p>
 
