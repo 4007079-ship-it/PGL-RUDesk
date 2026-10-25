@@ -2594,49 +2594,24 @@ class _AboutState extends State<_About> {
               SelectionArea(
                   child: Text('${translate('ID')}: $myId')
                       .marginSymmetric(vertical: 4.0)),
+              // PGL-RUDesk patch: автор и контакты
+              SelectionArea(
+                  child: Text('Автор: SMV')
+                      .marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com/privacy.html');
+                    launchUrlString('mailto:4007079@gmail.com');
                   },
                   child: Text(
-                    translate('Privacy Statement'),
+                    'Почта: 4007079@gmail.com',
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
-              InkWell(
-                  onTap: () {
-                    launchUrlString('https://rustdesk.com');
-                  },
+              const SizedBox(height: 24.0),
+              SelectionArea(
                   child: Text(
-                    translate('Website'),
-                    style: linkStyle,
-                  ).marginSymmetric(vertical: 4.0)),
-              Container(
-                decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
-                child: SelectionArea(
-                    child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Tech Pte. Ltd.\n$license',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          Text(
-                            translate('Slogan_tip'),
-                            style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                )),
-              ).marginSymmetric(vertical: 4.0)
+                'На основе RustDesk © Purslane Tech Pte. Ltd. · Лицензия AGPL-3.0',
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+              )).marginSymmetric(vertical: 4.0)
             ],
           ).marginOnly(left: _kContentHMargin)
         ]),

@@ -2459,7 +2459,22 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
     ThrottledInterval::new(i)
 }
 
+// PGL-RUDesk patch: название, сервер и ключ по умолчанию
+pub fn apply_pgl_branding() {
+    *config::APP_NAME.write().unwrap() = "PGL-RUDesk".to_owned();
+    let mut s = config::DEFAULT_SETTINGS.write().unwrap();
+    s.insert("custom-rendezvous-server".to_owned(), "157.228.187.7".to_owned());
+    s.insert("key".to_owned(), "CClcO0EUUWXSZa23Svb6wND2A6MOVjudEpohFXpJ4pw=".to_owned());
+    drop(s);
+    // тёмная тема по умолчанию (пользователь может переключить)
+    config::DEFAULT_LOCAL_SETTINGS
+        .write()
+        .unwrap()
+        .insert("theme".to_owned(), "dark".to_owned());
+}
+
 pub fn load_custom_client() {
+    apply_pgl_branding();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -2558,6 +2573,7 @@ pub fn get_dst_align_rgba() -> usize {
 }
 
 pub fn read_custom_client(config: &str) {
+    apply_pgl_branding();
     let Ok(data) = decode64(config) else {
         log::error!("Failed to decode custom client config");
         return;
