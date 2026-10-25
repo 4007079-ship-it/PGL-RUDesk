@@ -254,7 +254,7 @@ class UserModel {
     }
     for (final item in ops) {
       if (item.startsWith('common-oidc/')) {
-        return jsonDecode(item.substring('common-oidc/'.length));
+        return jsonDecode(item.substring('common-oidc/'.length)) ?? [];
       }
     }
     return ops

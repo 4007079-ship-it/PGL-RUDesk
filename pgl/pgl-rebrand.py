@@ -11,6 +11,7 @@ PGL-RUDesk: патч исходников RustDesk.
   5. Меняет название в ярлыках, свойствах exe, Android и меню Linux
   6. Тёмная тема по умолчанию, синий акцент -> розовый #F64AF6 из логотипа
   7. Windows: при установке exe переименовывается в PGL-RUDesk.exe
+  8. Регистрация по почте в окне входа (файл pgl/flutter/pgl_register.dart)
 Повторный запуск безопасен: уже применённые изменения пропускаются.
 """
 import re
@@ -190,6 +191,9 @@ NAMED = [  # Colors.blue* -> конкретные цвета
     (r"Colors\.blue\.shade800\b", "Color(0xFFB02FB0)"),
     (r"Colors\.blueAccent\b", f"Color(0xFF{PINK})"),
     (r"Colors\.blue\b(?!\.shade)", f"Color(0xFF{PINK})"),
+    (r"MyTheme\.lightTheme\.primaryColor\b", "MyTheme.accent"),
+    (r"Color\.fromARGB\(255, 162, 203, 241\)", "Color.fromARGB(255, 247, 190, 247)"),
+    (r"Color\.fromARGB\(255, 30, 65, 98\)", "Color.fromARGB(255, 98, 30, 98)"),
 ]
 
 
@@ -237,6 +241,63 @@ def fix_windows_install():
     print("[+] src/platform/windows.rs")
 
 
+# ---------- 8. Регистрация по почте в окне входа ----------
+def accounts():
+    import shutil
+    src_file = Path(__file__).resolve().parent / "flutter" / "pgl_register.dart"
+    if not src_file.is_file():
+        print("[!] pgl/flutter/pgl_register.dart не найден — регистрация не добавлена")
+        return
+    shutil.copyfile(src_file, "flutter/lib/common/widgets/pgl_register.dart")
+    print("[+] flutter/lib/common/widgets/pgl_register.dart")
+
+    p = Path("flutter/lib/common/widgets/login.dart")
+    s = p.read_text(encoding="utf-8")
+    if "pglRegisterDialog" in s:
+        print(f"[=] {p}: уже изменён")
+    else:
+        reps = [
+            ("import './oidc_auth_status.dart';\n",
+             "import './oidc_auth_status.dart';\nimport './pgl_register.dart';\n"),
+            ("                title: translate(DialogTextField.kUsernameTitle),\n                controller: username,",
+             "                title: 'Почта',\n                controller: username,"),
+            ("        setState(() => usernameMsg = translate('Username missed'));",
+             "        setState(() => usernameMsg = 'Введите почту');"),
+            ("            userFocusNode: userFocusNode,\n          ),\n          thirdAuthWidget(),",
+             "            userFocusNode: userFocusNode,\n          ),\n"
+             "          TextButton(\n"
+             "            onPressed: isInProgress\n"
+             "                ? null\n"
+             "                : () async {\n"
+             "                    final reg = await pglRegisterDialog();\n"
+             "                    if (reg != null) {\n"
+             "                      username.text = reg.email;\n"
+             "                      password.text = reg.password;\n"
+             "                      await onLogin();\n"
+             "                    }\n"
+             "                  },\n"
+             "            child: Text('Нет аккаунта? Регистрация',\n"
+             "                style: TextStyle(color: MyTheme.accent)),\n"
+             "          ).marginOnly(top: 8),\n"
+             "          thirdAuthWidget(),"),
+        ]
+        for a, b in reps:
+            if s.count(a) != 1:
+                sys.exit(f"[!] {p}: не удалось добавить регистрацию")
+            s = s.replace(a, b)
+        p.write_text(s, encoding="utf-8")
+        print(f"[+] {p}")
+
+    p = Path("flutter/lib/models/user_model.dart")
+    s = p.read_text(encoding="utf-8")
+    a = "        return jsonDecode(item.substring('common-oidc/'.length));\n"
+    if a in s:
+        p.write_text(s.replace(a, a.replace("));\n", ")) ?? [];\n")), encoding="utf-8")
+        print(f"[+] {p}")
+    else:
+        print(f"[=] {p}: уже изменён")
+
+
 # ---------- 4. Иконки и логотип ----------
 def install_icons():
     icons = Path(__file__).resolve().parent / "pgl-icons"
@@ -266,4 +327,5 @@ install_icons()
 rename_all()
 recolor()
 fix_windows_install()
+accounts()
 print(f"\nГотово: {APP_NAME}, сервер {SERVER}, автор {AUTHOR} <{EMAIL}>")

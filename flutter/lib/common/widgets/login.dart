@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../common.dart';
 import './dialog.dart';
 import './oidc_auth_status.dart';
+import './pgl_register.dart';
 
 const kOpSvgList = [
   'github',
@@ -658,7 +659,7 @@ class LoginWidgetUserPass extends StatelessWidget {
           children: [
             const SizedBox(height: 8.0),
             DialogTextField(
-                title: translate(DialogTextField.kUsernameTitle),
+                title: 'Почта',
                 controller: username,
                 focusNode: userFocusNode,
                 prefixIcon: DialogTextField.kUsernameIcon,
@@ -829,7 +830,7 @@ Future<bool?> _openLoginDialog() async {
       }
       // validate
       if (username.text.isEmpty) {
-        setState(() => usernameMsg = translate('Username missed'));
+        setState(() => usernameMsg = 'Введите почту');
         return;
       }
       if (password.text.isEmpty) {
@@ -985,6 +986,20 @@ Future<bool?> _openLoginDialog() async {
             onLogin: onLogin,
             userFocusNode: userFocusNode,
           ),
+          TextButton(
+            onPressed: isInProgress
+                ? null
+                : () async {
+                    final reg = await pglRegisterDialog();
+                    if (reg != null) {
+                      username.text = reg.email;
+                      password.text = reg.password;
+                      await onLogin();
+                    }
+                  },
+            child: Text('Нет аккаунта? Регистрация',
+                style: TextStyle(color: MyTheme.accent)),
+          ).marginOnly(top: 8),
           thirdAuthWidget(),
         ],
       ),
