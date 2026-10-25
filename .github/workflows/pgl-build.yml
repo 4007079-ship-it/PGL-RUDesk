@@ -16,3 +16,8 @@ jobs:
       upload-artifact: true
       upload-tag: "pgl-rudesk"
       publish-update-metadata: false
+
+  rename:
+    needs: build
+    if: ${{ always() }}
+    uses: ./.github/workflows/pgl-rename-assets.yml
