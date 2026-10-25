@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PGL-RUDesk — удалённый доступ</title>
+<meta name="description" content="PGL-RUDesk — удалённый доступ к компьютерам и телефонам через собственный сервер">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20640%20640%22%3E%3Crect%20width%3D%22640%22%20height%3D%22640%22%20fill%3D%22%23000%22/%3E%3Crect%20x%3D%22130%22%20y%3D%220%22%20width%3D%22379%22%20height%3D%2264%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%2250%22%20width%3D%22130%22%20height%3D%2256%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22509%22%20y%3D%2250%22%20width%3D%22131%22%20height%3D%2256%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22130%22%20y%3D%22131%22%20width%3D%22452%22%20height%3D%2253%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%22174%22%20width%3D%22130%22%20height%3D%2250%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22582%22%20y%3D%22174%22%20width%3D%2258%22%20height%3D%2250%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22130%22%20y%3D%22247%22%20width%3D%22452%22%20height%3D%2254%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%22294%22%20width%3D%22130%22%20height%3D%2243%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22582%22%20y%3D%22294%22%20width%3D%2258%22%20height%3D%2243%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22130%22%20y%3D%22364%22%20width%3D%22379%22%20height%3D%2250%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%22407%22%20width%3D%22130%22%20height%3D%2237%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22509%22%20y%3D%22407%22%20width%3D%22131%22%20height%3D%2237%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22130%22%20y%3D%22474%22%20width%3D%22183%22%20height%3D%2243%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%22510%22%20width%3D%22130%22%20height%3D%2230%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22313%22%20y%3D%22510%22%20width%3D%22327%22%20height%3D%2230%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22130%22%20y%3D%22580%22%20width%3D%22183%22%20height%3D%2240%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%220%22%20y%3D%22613%22%20width%3D%22130%22%20height%3D%2227%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22313%22%20y%3D%22613%22%20width%3D%22327%22%20height%3D%2227%22%20fill%3D%22%23f64af6%22/%3E%3Crect%20x%3D%22195%22%20y%3D%22403%22%20width%3D%22445%22%20height%3D%22237%22%20rx%3D%2236%22%20fill%3D%22%23000%22/%3E%3Cpath%20fill%3D%22%23f64af6%22%20d%3D%22M234.62890625%20558.0H263.9306640625V519.4013671875H284.43359375C312.822265625%20519.4013671875%20330.3369140625%20502.55078125%20330.3369140625%20477.0673828125C330.3369140625%20451.75%20313.154296875%20434.318359375%20285.263671875%20434.318359375H234.62890625ZM263.9306640625%20496.2421875V458.05859375H279.0380859375C292.8173828125%20458.05859375%20299.9560546875%20465.4462890625%20299.9560546875%20477.0673828125C299.9560546875%20488.5224609375%20292.8173828125%20496.2421875%20279.12109375%20496.2421875ZM401.97265625%20559.66015625C433.681640625%20559.66015625%20456.42578125%20539.904296875%20456.42578125%20506.8671875V490.59765625H403.3837890625V512.0966796875H428.1201171875C427.7880859375%20525.5439453125%20418.57421875%20533.927734375%20402.2216796875%20533.927734375C383.544921875%20533.927734375%20372.587890625%20520.0654296875%20372.587890625%20495.9931640625C372.587890625%20472.0869140625%20384.1259765625%20458.390625%20402.138671875%20458.390625C414.3408203125%20458.390625%20422.6416015625%20464.4501953125%20425.4638671875%20474.66015625H455.09765625C452.0263671875%20450.0068359375%20430.029296875%20432.658203125%20401.640625%20432.658203125C368.6865234375%20432.658203125%20342.6220703125%20455.9833984375%20342.6220703125%20496.408203125C342.6220703125%20535.5048828125%20366.611328125%20559.66015625%20401.97265625%20559.66015625ZM473.359375%20558.0H554.375V534.09375H502.6611328125V434.318359375H473.359375Z%22/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0f0f12; --panel: #18191e; --card: #202128; --line: #2c2d35;
+    --text: #ececef; --muted: #9a9ba3; --pink: #f64af6; --pink-d: #c93ac9; --ok: #32bea6;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  header { position: sticky; top: 0; z-index: 5; background: rgba(15,15,18,.88);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 18px; }
+  .brand svg { width: 32px; height: 32px; border-radius: 7px; }
+  nav { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--pink); }
+
+  .stripes { position: absolute; inset: 0; z-index: 0; opacity: .13; pointer-events: none;
+    background: repeating-linear-gradient(180deg, var(--pink) 0 22px, transparent 22px 52px);
+    mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+  .hero { position: relative; overflow: hidden; padding: 84px 0 76px; border-bottom: 1px solid var(--line); }
+  .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.2fr .8fr; gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -.5px; }
+  .hero h1 span { color: var(--pink); }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 0 30px; max-width: 520px; }
+  .logo-big { width: 100%; max-width: 320px; justify-self: center; border-radius: 28px;
+    outline: 1px solid var(--line); outline-offset: 10px; }
+  .logo-big svg { display: block; width: 100%; height: auto; border-radius: 28px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px; border-radius: 10px;
+    font-weight: 600; text-decoration: none; font-size: 15px; transition: background .15s, color .15s; }
+  .btn-main { background: var(--pink); color: #fff; }
+  .btn-main:hover { background: var(--pink-d); }
+  .btn-ghost { border: 1px solid var(--pink); color: var(--pink); margin-left: 10px; }
+  .btn-ghost:hover { background: rgba(246,74,246,.1); }
+
+  section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 30px; margin: 0 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 34px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .dl { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 18px;
+    text-decoration: none; display: flex; flex-direction: column; gap: 6px; transition: border-color .15s, transform .15s; }
+  .dl:hover { border-color: var(--pink); transform: translateY(-2px); }
+  .dl svg { width: 34px; height: 34px; fill: var(--pink); margin-bottom: 8px; }
+  .dl b { font-size: 17px; }
+  .dl small { color: var(--muted); font-size: 13px; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 18px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: s; }
+  .step { background: var(--panel); border-radius: 14px; padding: 24px 20px; border-left: 4px solid var(--pink); }
+  .step::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 8px; background: #000; color: var(--pink); font-weight: 700; margin-bottom: 12px; }
+  .step h3 { margin: 0 0 6px; font-size: 17px; }
+  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px 30px; }
+  .feat div { padding-left: 16px; border-left: 2px solid var(--line); }
+  .feat h3 { margin: 0 0 4px; font-size: 16px; }
+  .feat p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .server { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(50,190,166,.18); }
+  code { font-family: ui-monospace, Consolas, monospace; background: #000; color: var(--pink);
+    padding: 3px 8px; border-radius: 6px; font-size: 14px; }
+
+  footer { padding: 34px 0 44px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; }
+  footer a { color: var(--pink); text-decoration: none; }
+
+  @media (max-width: 820px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+    .logo-big { max-width: 200px; order: -1; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps, .feat { grid-template-columns: 1fr; }
+    nav { display: none; }
+    .btn-ghost { margin: 12px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><rect width="640" height="640" fill="#000"/><rect x="130" y="0" width="379" height="64" fill="#f64af6"/><rect x="0" y="50" width="130" height="56" fill="#f64af6"/><rect x="509" y="50" width="131" height="56" fill="#f64af6"/><rect x="130" y="131" width="452" height="53" fill="#f64af6"/><rect x="0" y="174" width="130" height="50" fill="#f64af6"/><rect x="582" y="174" width="58" height="50" fill="#f64af6"/><rect x="130" y="247" width="452" height="54" fill="#f64af6"/><rect x="0" y="294" width="130" height="43" fill="#f64af6"/><rect x="582" y="294" width="58" height="43" fill="#f64af6"/><rect x="130" y="364" width="379" height="50" fill="#f64af6"/><rect x="0" y="407" width="130" height="37" fill="#f64af6"/><rect x="509" y="407" width="131" height="37" fill="#f64af6"/><rect x="130" y="474" width="183" height="43" fill="#f64af6"/><rect x="0" y="510" width="130" height="30" fill="#f64af6"/><rect x="313" y="510" width="327" height="30" fill="#f64af6"/><rect x="130" y="580" width="183" height="40" fill="#f64af6"/><rect x="0" y="613" width="130" height="27" fill="#f64af6"/><rect x="313" y="613" width="327" height="27" fill="#f64af6"/><rect x="195" y="403" width="445" height="237" rx="36" fill="#000"/><path fill="#f64af6" d="M234.62890625 558.0H263.9306640625V519.4013671875H284.43359375C312.822265625 519.4013671875 330.3369140625 502.55078125 330.3369140625 477.0673828125C330.3369140625 451.75 313.154296875 434.318359375 285.263671875 434.318359375H234.62890625ZM263.9306640625 496.2421875V458.05859375H279.0380859375C292.8173828125 458.05859375 299.9560546875 465.4462890625 299.9560546875 477.0673828125C299.9560546875 488.5224609375 292.8173828125 496.2421875 279.12109375 496.2421875ZM401.97265625 559.66015625C433.681640625 559.66015625 456.42578125 539.904296875 456.42578125 506.8671875V490.59765625H403.3837890625V512.0966796875H428.1201171875C427.7880859375 525.5439453125 418.57421875 533.927734375 402.2216796875 533.927734375C383.544921875 533.927734375 372.587890625 520.0654296875 372.587890625 495.9931640625C372.587890625 472.0869140625 384.1259765625 458.390625 402.138671875 458.390625C414.3408203125 458.390625 422.6416015625 464.4501953125 425.4638671875 474.66015625H455.09765625C452.0263671875 450.0068359375 430.029296875 432.658203125 401.640625 432.658203125C368.6865234375 432.658203125 342.6220703125 455.9833984375 342.6220703125 496.408203125C342.6220703125 535.5048828125 366.611328125 559.66015625 401.97265625 559.66015625ZM473.359375 558.0H554.375V534.09375H502.6611328125V434.318359375H473.359375Z"/></svg><span>PGL-RUDesk</span></a>
+    <nav>
+      <a href="#download">Скачать</a>
+      <a href="#how">Как подключиться</a>
+      <a href="#features">Возможности</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="stripes"></div>
+  <div class="wrap">
+    <div>
+      <h1>Удалённый доступ <span>без посредников</span></h1>
+      <p>PGL-RUDesk подключает к компьютерам и телефонам через собственный сервер. Экран, мышь, клавиатура и файлы — с шифрованием и без чужих облаков.</p>
+      <a class="btn btn-main" href="#download">Скачать</a>
+      <a class="btn btn-ghost" href="#how">Как подключиться</a>
+    </div>
+    <div class="logo-big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><rect width="640" height="640" fill="#000"/><rect x="130" y="0" width="379" height="64" fill="#f64af6"/><rect x="0" y="50" width="130" height="56" fill="#f64af6"/><rect x="509" y="50" width="131" height="56" fill="#f64af6"/><rect x="130" y="131" width="452" height="53" fill="#f64af6"/><rect x="0" y="174" width="130" height="50" fill="#f64af6"/><rect x="582" y="174" width="58" height="50" fill="#f64af6"/><rect x="130" y="247" width="452" height="54" fill="#f64af6"/><rect x="0" y="294" width="130" height="43" fill="#f64af6"/><rect x="582" y="294" width="58" height="43" fill="#f64af6"/><rect x="130" y="364" width="379" height="50" fill="#f64af6"/><rect x="0" y="407" width="130" height="37" fill="#f64af6"/><rect x="509" y="407" width="131" height="37" fill="#f64af6"/><rect x="130" y="474" width="183" height="43" fill="#f64af6"/><rect x="0" y="510" width="130" height="30" fill="#f64af6"/><rect x="313" y="510" width="327" height="30" fill="#f64af6"/><rect x="130" y="580" width="183" height="40" fill="#f64af6"/><rect x="0" y="613" width="130" height="27" fill="#f64af6"/><rect x="313" y="613" width="327" height="27" fill="#f64af6"/><rect x="195" y="403" width="445" height="237" rx="36" fill="#000"/><path fill="#f64af6" d="M234.62890625 558.0H263.9306640625V519.4013671875H284.43359375C312.822265625 519.4013671875 330.3369140625 502.55078125 330.3369140625 477.0673828125C330.3369140625 451.75 313.154296875 434.318359375 285.263671875 434.318359375H234.62890625ZM263.9306640625 496.2421875V458.05859375H279.0380859375C292.8173828125 458.05859375 299.9560546875 465.4462890625 299.9560546875 477.0673828125C299.9560546875 488.5224609375 292.8173828125 496.2421875 279.12109375 496.2421875ZM401.97265625 559.66015625C433.681640625 559.66015625 456.42578125 539.904296875 456.42578125 506.8671875V490.59765625H403.3837890625V512.0966796875H428.1201171875C427.7880859375 525.5439453125 418.57421875 533.927734375 402.2216796875 533.927734375C383.544921875 533.927734375 372.587890625 520.0654296875 372.587890625 495.9931640625C372.587890625 472.0869140625 384.1259765625 458.390625 402.138671875 458.390625C414.3408203125 458.390625 422.6416015625 464.4501953125 425.4638671875 474.66015625H455.09765625C452.0263671875 450.0068359375 430.029296875 432.658203125 401.640625 432.658203125C368.6865234375 432.658203125 342.6220703125 455.9833984375 342.6220703125 496.408203125C342.6220703125 535.5048828125 366.611328125 559.66015625 401.97265625 559.66015625ZM473.359375 558.0H554.375V534.09375H502.6611328125V434.318359375H473.359375Z"/></svg></div>
+  </div>
+</div>
+
+<section id="download">
+  <div class="wrap">
+    <h2>Скачать PGL-RUDesk</h2>
+    <p class="lead">Сервер уже вписан в программу — после установки ничего настраивать не нужно.</p>
+    <div class="grid">
+      <a class="dl" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk">
+        <svg viewBox="0 0 24 24"><path d="M3 5.5 10 4.5v7H3zM11 4.4 21 3v8.5H11zM3 12.5h7v7L3 18.5zM11 12.5h10V21l-10-1.4z"/></svg>
+        <b>Windows</b><small>Установщик .exe</small>
+      </a>
+      <a class="dl" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk">
+        <svg viewBox="0 0 24 24"><path d="M6 9h12v8a1 1 0 0 1-1 1h-1v3h-2v-3h-4v3H8v-3H7a1 1 0 0 1-1-1zM4 9h1v7H4zm15 0h1v7h-1zM7.5 4 6.3 2.4l.6-.4 1.3 1.7A6 6 0 0 1 12 3a6 6 0 0 1 3.8.7L17.1 2l.6.4L16.5 4A5 5 0 0 1 18 8H6a5 5 0 0 1 1.5-4zM9.5 5.5a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6zm5 0a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6z"/></svg>
+        <b>Android</b><small>Приложение .apk</small>
+      </a>
+      <a class="dl" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk">
+        <svg viewBox="0 0 24 24"><path d="M12 2c-2.2 0-3.5 1.9-3.5 4.3 0 1.2.3 2.1.1 3.2-.3 1.6-2.4 3.4-3.1 5.7-.4 1.3.3 2.1 1 2.3.4 1.4 1.7 3 3.4 3.3.9.2 1.5-.4 2.1-.4s1.2.6 2.1.4c1.7-.3 3-1.9 3.4-3.3.7-.2 1.4-1 1-2.3-.7-2.3-2.8-4.1-3.1-5.7-.2-1.1.1-2 .1-3.2C15.5 3.9 14.2 2 12 2zm-1.5 4a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6zm3 0a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6zM12 8.6l1.8.9-1.8 1-1.8-1z"/></svg>
+        <b>Linux</b><small>Пакеты .deb / .rpm</small>
+      </a>
+      <a class="dl" href="https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk">
+        <svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9s-2-.9-3.3-.9C6 6.9 4.5 7.9 3.6 9.5c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.5 1.3 0 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.2 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1.1-2.8-4.2zM14 5.2c.7-.8 1.2-2 1-3.2-1 0-2.2.7-3 1.5-.6.7-1.2 1.9-1 3.1 1.1.1 2.3-.6 3-1.4z"/></svg>
+        <b>macOS</b><small>Образ .dmg</small>
+      </a>
+    </div>
+    <p class="note">macOS: при первом запуске откройте Системные настройки → Конфиденциальность и безопасность → «Всё равно открыть».</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Как подключиться</h2>
+    <p class="lead">Три шага — и вы видите экран другого устройства.</p>
+    <div class="steps">
+      <div class="step"><h3>Установите на оба устройства</h3><p>И на то, с которого подключаетесь, и на то, к которому.</p></div>
+      <div class="step"><h3>Узнайте ID и пароль</h3><p>Они показаны в левой части окна на управляемом устройстве.</p></div>
+      <div class="step"><h3>Введите ID и подключитесь</h3><p>Впишите ID в поле справа, нажмите «Подключиться» и введите пароль.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Возможности</h2>
+    <p class="lead">Всё, что нужно для работы на расстоянии.</p>
+    <div class="feat">
+      <div><h3>Полное управление</h3><p>Экран, мышь, клавиатура и буфер обмена.</p></div>
+      <div><h3>Передача файлов</h3><p>В обе стороны, с продолжением после обрыва.</p></div>
+      <div><h3>Шифрование</h3><p>Сквозное шифрование каждого соединения.</p></div>
+      <div><h3>Свой сервер</h3><p>Данные не проходят через сторонние сервисы.</p></div>
+      <div><h3>Локальная сеть</h3><p>Прямое подключение по IP без сервера.</p></div>
+      <div><h3>Все платформы</h3><p>Windows, macOS, Linux и Android.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="server"><span class="dot"></span><b>Сервер PGL-RUDesk</b>
+      <span style="color:var(--muted)">ID-сервер:</span><code>157.228.187.7</code>
+      <span style="color:var(--muted);font-size:14px">Уже настроен в программе. Поменять: Настройки → Сеть → ID/Relay сервер.</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© SMV · <a href="mailto:4007079@gmail.com">4007079@gmail.com</a> · <a href="https://github.com/4007079-ship-it/PGL-RUDesk">GitHub</a></span>
+    <span>На основе RustDesk © Purslane Tech Pte. Ltd. · Лицензия AGPL-3.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
