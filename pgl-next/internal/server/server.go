@@ -61,6 +61,9 @@ func New(cfg Config) (*Server, error) {
 	return s, nil
 }
 
+// Store exposes the backing store (used by tests and tooling).
+func (s *Server) Store() *store.Store { return s.st }
+
 func (s *Server) Close() error {
 	if s.turn != nil {
 		return s.turn.Close()
@@ -284,8 +287,11 @@ func validEmail(e string) bool {
 }
 
 func (s *Server) ice(ttl time.Duration) []proto.ICEServer {
-	if s.turn == nil {
+	if s.turn != nil {
+		return s.turn.iceServers(s.cfg.Host, ttl)
+	}
+	if s.cfg.Host != "" && s.cfg.TurnPort != 0 {
 		return []proto.ICEServer{{URLs: []string{"stun:" + s.cfg.Host + ":" + itoa(s.cfg.TurnPort)}}}
 	}
-	return s.turn.iceServers(s.cfg.Host, ttl)
+	return nil // loopback / no relay: host candidates are enough
 }
