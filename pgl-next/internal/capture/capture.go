@@ -43,3 +43,14 @@ func bounds(img image.Image) (int, int) {
 	b := img.Bounds()
 	return b.Dx(), b.Dy()
 }
+
+// clampQ keeps JPEG quality within the valid 1..100 range.
+func clampQ(q int) int {
+	if q < 1 {
+		return 1
+	}
+	if q > 100 {
+		return 100
+	}
+	return q
+}

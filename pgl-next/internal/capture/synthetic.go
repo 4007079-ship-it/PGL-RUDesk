@@ -60,13 +60,3 @@ func (s *synthetic) Grab(quality int) (*Frame, error) {
 }
 
 func (s *synthetic) Close() error { return nil }
-
-func clampQ(q int) int {
-	if q < 1 {
-		return 1
-	}
-	if q > 100 {
-		return 100
-	}
-	return q
-}
