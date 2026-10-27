@@ -20,17 +20,20 @@ def render(name):
     t = (HERE / name).read_text(encoding="utf-8")
     return (t.replace("__LOGO__", svg).replace("__FAVICON__", fav)
              .replace("__RELEASES__", RELEASES).replace("__SERVER__", SERVER)
-             .replace("__DL__", DL).replace("__ADMIN_URL__", "/pgl-odmin/"))
+             .replace("__DL__", DL).replace("__ADMIN_URL__", "/pgl-odmin/")
+             .replace("__EMAIL__", "4007079@gmail.com"))
 
 
 shutil.rmtree(DIST, ignore_errors=True)
 (DIST / "account").mkdir(parents=True)
+(DIST / "help").mkdir()
 (DIST / "index.html").write_text(render("template.html"), encoding="utf-8")
 (DIST / "account" / "index.html").write_text(render("account-template.html"), encoding="utf-8")
+(DIST / "help" / "index.html").write_text(render("help-template.html"), encoding="utf-8")
 
 buf = io.BytesIO()
 with tarfile.open(fileobj=buf, mode="w:gz", compresslevel=9) as tar:
-    for f in ["index.html", "account/index.html"]:
+    for f in ["index.html", "account/index.html", "help/index.html"]:
         info = tar.gettarinfo(DIST / f, arcname=f)
         info.uid = info.gid = 0
         info.uname = info.gname = "root"

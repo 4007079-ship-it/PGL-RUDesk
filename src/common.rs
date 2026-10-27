@@ -1130,6 +1130,9 @@ fn process_software_update_check_response(bytes: Bytes) -> ResultType<()> {
 // Because the url is always `https://api.rustdesk.com/version/latest`.
 #[tokio::main(flavor = "current_thread")]
 pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
+    if is_custom_client() {
+        return Ok(());
+    }
     let (request, url) =
         hbb_common::version_check_request(hbb_common::VER_TYPE_RUSTDESK_CLIENT.to_string());
     let proxy_conf = Config::get_socks();
@@ -2467,6 +2470,7 @@ pub fn apply_pgl_branding() {
     s.insert("key".to_owned(), "CClcO0EUUWXSZa23Svb6wND2A6MOVjudEpohFXpJ4pw=".to_owned());
     s.insert("direct-server".to_owned(), "Y".to_owned());
     drop(s);
+    *config::PROD_RENDEZVOUS_SERVER.write().unwrap() = "157.228.187.7".to_owned();
     // тёмная тема по умолчанию (пользователь может переключить)
     config::DEFAULT_LOCAL_SETTINGS
         .write()

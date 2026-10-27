@@ -12,6 +12,7 @@ PGL-RUDesk: патч исходников RustDesk.
   6. Тёмная тема по умолчанию, синий акцент -> розовый #F64AF6 из логотипа
   7. Windows: при установке exe переименовывается в PGL-RUDesk.exe
   8. Регистрация по почте в окне входа (файл pgl/flutter/pgl_register.dart)
+  9. Отвязка от RustDesk: без проверки обновлений, ссылки ведут на свой сайт
 Повторный запуск безопасен: уже применённые изменения пропускаются.
 """
 import re
@@ -23,6 +24,8 @@ SERVER = "157.228.187.7"
 KEY = "CClcO0EUUWXSZa23Svb6wND2A6MOVjudEpohFXpJ4pw="
 AUTHOR = "SMV"
 EMAIL = "4007079@gmail.com"
+SITE = "http://pgl-rudesk.ddns.info"
+HELP = SITE + "/help/"
 FOOTNOTE = "На основе RustDesk © Purslane Tech Pte. Ltd. · Лицензия AGPL-3.0"
 
 MARK = "PGL-RUDesk patch"
@@ -261,6 +264,75 @@ def fix_windows_autostart():
     print("[+] Автозапуск службы после установки")
 
 
+# ---------- 9. Отвязка от RustDesk ----------
+UNLINK = {
+    "src/common.rs": [
+        ("pub async fn do_check_software_update() -> hbb_common::ResultType<()> {\n",
+         "pub async fn do_check_software_update() -> hbb_common::ResultType<()> {\n"
+         "    if is_custom_client() {\n        return Ok(());\n    }\n"),
+        ("    drop(s);\n    // тёмная тема",
+         "    drop(s);\n    *config::PROD_RENDEZVOUS_SERVER.write().unwrap() = \"" + SERVER + "\".to_owned();\n"
+         "    // тёмная тема"),
+    ],
+    "src/client.rs": [
+        ('"https://rustdesk.com/docs/en/manual/linux/#x11-required"', '"' + HELP + '#x11"'),
+        ('"https://rustdesk.com/docs/en/manual/linux/#login-screen"', '"' + HELP + '#login-screen"'),
+    ],
+    "src/lang/en.rs": [
+        ('"https://rustdesk.com/docs/en/client/linux/#x11-required"', '"' + HELP + '#x11"'),
+        ('"https://rustdesk.com/docs/en/client/mac/#enable-permissions"', '"' + HELP + '#mac-permissions"'),
+    ],
+    "flutter/lib/desktop/pages/connection_page.dart": [
+        ('"https://rustdesk.com/pricing"', '"' + SITE + '/"'),
+    ],
+    "flutter/lib/desktop/pages/install_page.dart": [
+        ("'https://rustdesk.com/privacy.html'", "'" + HELP + "#privacy'"),
+    ],
+    "flutter/lib/desktop/pages/desktop_home_page.dart": [
+        ("'https://rustdesk.com/download'", "'" + SITE + "/#download'"),
+        ("'https://github.com/rustdesk/rustdesk/releases/tag/${bind.mainGetNewVersion()}'",
+         "'https://github.com/4007079-ship-it/PGL-RUDesk/releases/tag/pgl-rudesk'"),
+        ("'https://rustdesk.com/docs/en/client/linux/#permissions-issue'", "'" + HELP + "#selinux'"),
+        ("'https://rustdesk.com/docs/en/client/linux/#x11-required'", "'" + HELP + "#x11'"),
+        ("'https://rustdesk.com/docs/en/client/linux/#login-screen'", "'" + HELP + "#login-screen'"),
+    ],
+    "flutter/lib/desktop/pages/desktop_setting_page.dart": [
+        ("final showAutoUpdate = (isWindows && bind.mainIsInstalled()) ||",
+         "final showAutoUpdate = (isWindows && bind.mainIsInstalled() && !bind.isCustomClient()) ||"),
+    ],
+    "flutter/lib/common/widgets/toolbar.dart": [
+        ("'https://github.com/rustdesk/rustdesk/issues/14586'", "'" + HELP + "#wayland-keyboard'"),
+    ],
+    "flutter/lib/mobile/pages/settings_page.dart": [
+        ("const url = 'https://rustdesk.com/';", "const url = '" + SITE + "/';"),
+        ("child: Text('rustdesk.com',", "child: Text('" + SITE.split('//')[1] + "',"),
+        ("launchUrlString('https://rustdesk.com/privacy.html')", "launchUrlString('" + HELP + "#privacy')"),
+    ],
+    "flutter/lib/mobile/pages/connection_page.dart": [
+        ("'https://rustdesk.com/download'", "'" + SITE + "/#download'"),
+    ],
+}
+
+
+def unlink_rustdesk():
+    changed = 0
+    for path, pairs in UNLINK.items():
+        p = Path(path)
+        src = p.read_text(encoding="utf-8")
+        new = src
+        for a, b in pairs:
+            if b in new:
+                continue
+            n = new.count(a)
+            if n == 0:
+                sys.exit(f"[!] {path}: не найдено: {a[:60]}")
+            new = new.replace(a, b)
+        if new != src:
+            p.write_text(new, encoding="utf-8")
+            changed += 1
+    print(f"[+] Отвязка от RustDesk: изменено файлов {changed}" if changed else "[=] Отвязка от RustDesk: уже сделана")
+
+
 # ---------- 8. Регистрация по почте в окне входа ----------
 def accounts():
     import shutil
@@ -349,4 +421,5 @@ recolor()
 fix_windows_install()
 fix_windows_autostart()
 accounts()
+unlink_rustdesk()
 print(f"\nГотово: {APP_NAME}, сервер {SERVER}, автор {AUTHOR} <{EMAIL}>")

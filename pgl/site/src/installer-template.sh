@@ -19,7 +19,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nginx >/dev/null
 
 green "==> Копирование страниц"
 install -d "$SITE_DIR"
-rm -rf "$SITE_DIR/account"
+rm -rf "$SITE_DIR/account" "$SITE_DIR/help"
 echo '__PAYLOAD__' | base64 -d | tar -xz -C "$SITE_DIR"
 
 if grep -q 'PGL-RUDesk HTTPS' /etc/nginx/sites-available/pgl-rudesk 2>/dev/null; then
@@ -75,6 +75,7 @@ echo
 green "================================================================"
 green "  Сайт PGL-RUDesk опубликован:  http://$IP"
 green "  Личный кабинет:               http://$IP/account/"
+green "  Справка:                      http://$IP/help/"
 green "================================================================"
 echo "  Регистрация и вход в кабинет работают, когда установлен сервер"
 echo "  аккаунтов (pgl-rudesk-api-install.sh)."

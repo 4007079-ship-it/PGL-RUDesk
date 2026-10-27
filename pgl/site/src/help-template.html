@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PGL-RUDesk — справка</title>
+<meta name="description" content="Справка PGL-RUDesk: конфиденциальность, Linux, macOS">
+<link rel="icon" href="data:image/svg+xml,__FAVICON__">
+<style>
+  :root {
+    --bg: #0f0f12; --panel: #18191e; --card: #202128; --line: #2c2d35;
+    --text: #ececef; --muted: #9a9ba3; --pink: #f64af6; --pink-d: #c93ac9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--pink); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  header { position: sticky; top: 0; z-index: 5; background: rgba(15,15,18,.88);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; gap: 12px; height: 60px; max-width: 1040px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 18px; color: var(--text); }
+  .brand svg { width: 32px; height: 32px; border-radius: 7px; }
+  header nav { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+  header nav a { text-decoration: none; color: var(--muted); }
+  header nav a:hover { color: var(--pink); }
+
+  h1 { font-size: clamp(30px, 5vw, 42px); margin: 48px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 28px; }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+  .toc a { text-decoration: none; font-size: 14px; color: var(--text); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+  .toc a:hover { border-color: var(--pink); color: var(--pink); }
+
+  article { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--pink);
+    border-radius: 14px; padding: 22px 24px; margin-bottom: 18px; scroll-margin-top: 80px; }
+  article:target { border-color: var(--pink); }
+  article h2 { margin: 0 0 10px; font-size: 21px; }
+  article p, article li { color: #cfd0d6; }
+  article p { margin: 0 0 10px; }
+  article ol, article ul { margin: 0 0 10px; padding-left: 22px; }
+  pre { background: #000; color: var(--pink); border-radius: 10px; padding: 12px 14px; overflow-x: auto;
+    font: 14px/1.5 ui-monospace, Consolas, monospace; margin: 6px 0 12px; }
+  code { font-family: ui-monospace, Consolas, monospace; background: #000; color: var(--pink);
+    padding: 2px 6px; border-radius: 5px; font-size: 14px; }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  footer { padding: 30px 0 44px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 640px) { header nav { display: none; } article { padding: 18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="/">__LOGO__<span>PGL-RUDesk</span></a>
+    <nav>
+      <a href="/#download">Скачать</a>
+      <a href="/account/">Личный кабинет</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Справка</h1>
+  <p class="lead">Ответы на вопросы, на которые ссылается программа PGL-RUDesk.</p>
+  <div class="toc">
+    <a href="#privacy">Конфиденциальность</a>
+    <a href="#x11">Linux: Wayland и X11</a>
+    <a href="#login-screen">Linux: экран входа</a>
+    <a href="#selinux">Linux: SELinux</a>
+    <a href="#wayland-keyboard">Linux: клавиатура в Wayland</a>
+    <a href="#mac-permissions">macOS: разрешения</a>
+  </div>
+
+  <article id="privacy">
+    <h2>Конфиденциальность</h2>
+    <p>PGL-RUDesk работает только через собственный сервер. Сторонние облака и чужие серверы не используются.</p>
+    <ul>
+      <li><b>Изображение экрана, ввод, файлы и буфер обмена</b> передаются между устройствами в зашифрованном виде. Если прямое соединение невозможно, данные идут через ретранслятор нашего сервера, но остаются зашифрованными, и сервер их не видит.</li>
+      <li><b>На сервере хранится</b>: ID устройства, имя компьютера и версия программы. Если вы зарегистрировались, то ещё почта, пароль в виде хеша, список ваших устройств и история входов.</li>
+      <li>Данные не продаются и не передаются третьим лицам.</li>
+      <li>Почта используется только для входа и восстановления пароля.</li>
+    </ul>
+    <p>Чтобы удалить аккаунт и данные, напишите на <a href="mailto:__EMAIL__">__EMAIL__</a>.</p>
+  </article>
+
+  <article id="x11">
+    <h2>Linux: нужен сеанс X11</h2>
+    <p>В сеансе Wayland удалённое управление работает с ограничениями. Для полноценной работы войдите в сеанс X11 (Xorg):</p>
+    <ol>
+      <li>Выйдите из системы.</li>
+      <li>На экране входа выберите пользователя и нажмите на шестерёнку в углу.</li>
+      <li>Выберите <b>«Ubuntu на Xorg»</b> (или «GNOME на Xorg»), затем войдите.</li>
+    </ol>
+    <p>Проверить текущий сеанс можно командой:</p>
+    <pre>echo $XDG_SESSION_TYPE</pre>
+    <p class="muted">Должно быть <code>x11</code>.</p>
+  </article>
+
+  <article id="login-screen">
+    <h2>Linux: экран входа на Wayland не поддерживается</h2>
+    <p>Чтобы подключаться к компьютеру, пока на нём никто не вошёл, экран входа тоже должен работать на X11. Для GDM (Ubuntu, Debian) выполните:</p>
+    <pre>sudo sed -i 's/^#\?WaylandEnable=.*/WaylandEnable=false/' /etc/gdm3/custom.conf
+sudo reboot</pre>
+    <p class="muted">В Fedora этот файл называется <code>/etc/gdm/custom.conf</code>.</p>
+  </article>
+
+  <article id="selinux">
+    <h2>Linux: SELinux блокирует службу</h2>
+    <p>В Fedora, CentOS и RHEL SELinux может мешать службе PGL-RUDesk. Чтобы разрешить ей работать, выполните:</p>
+    <pre>sudo ausearch -c 'rustdesk' --raw | audit2allow -M pgl-rudesk
+sudo semodule -i pgl-rudesk.pp
+sudo systemctl restart rustdesk</pre>
+    <p class="muted">В Linux-пакете служба и файл программы технически называются <code>rustdesk</code>.</p>
+    <p class="muted">Для быстрой проверки можно временно отключить SELinux командой <code>sudo setenforce 0</code>. После перезагрузки он включится снова.</p>
+  </article>
+
+  <article id="wayland-keyboard">
+    <h2>Linux: ввод с клавиатуры в Wayland</h2>
+    <p>В сеансе Wayland PGL-RUDesk передаёт нажатия клавиш через виртуальную клавиатуру системы. Другие программы на удалённом компьютере могут видеть набираемый текст, в том числе пароли. Поэтому программа спрашивает разрешение перед включением ввода.</p>
+    <p>Разрешайте ввод только на компьютерах, которым доверяете. Самый надёжный вариант — сеанс <a href="#x11">X11</a>.</p>
+  </article>
+
+  <article id="mac-permissions">
+    <h2>macOS: разрешения</h2>
+    <p>Чтобы к Mac можно было подключиться, PGL-RUDesk нужны три разрешения. Откройте <b>Системные настройки → Конфиденциальность и безопасность</b> и включите PGL-RUDesk в разделах:</p>
+    <ol>
+      <li><b>Запись экрана</b> — чтобы показывать экран;</li>
+      <li><b>Универсальный доступ</b> — чтобы управлять мышью и клавиатурой;</li>
+      <li><b>Мониторинг ввода</b> — чтобы передавать нажатия клавиш.</li>
+    </ol>
+    <p>После этого перезапустите PGL-RUDesk. Если программы нет в списке, добавьте её кнопкой «+» из папки «Программы».</p>
+  </article>
+</main>
+
+<footer>
+  <div class="wrap">PGL-RUDesk · автор SMV · <a href="mailto:__EMAIL__">__EMAIL__</a></div>
+</footer>
+
+</body>
+</html>
