@@ -1739,6 +1739,8 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
         Config::set_option("custom-rendezvous-server".into(), lic.host);
         Config::set_option("api-server".into(), lic.api);
     }
+    // A stale "stop-service" left by a portable run would skip creating the service.
+    Config::set_option("stop-service".into(), "".into());
 
     let tray_shortcuts = if config::is_outgoing_only() {
         "".to_owned()

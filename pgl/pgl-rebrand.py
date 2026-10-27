@@ -241,6 +241,26 @@ def fix_windows_install():
     print("[+] src/platform/windows.rs")
 
 
+# ---------- 7б. Windows: служба запускается сразу после установки ----------
+def fix_windows_autostart():
+    p = Path("src/platform/windows.rs")
+    if not p.is_file():
+        return
+    src = p.read_text(encoding="utf-8")
+    line = '    Config::set_option("stop-service".into(), "".into());\n\n    let tray_shortcuts'
+    if line in src:
+        print("[=] Автозапуск службы: уже включён")
+        return
+    a = '        Config::set_option("api-server".into(), lic.api);\n    }\n\n    let tray_shortcuts'
+    if src.count(a) != 1:
+        sys.exit("[!] src/platform/windows.rs: не удалось включить автозапуск службы")
+    src = src.replace(a, '        Config::set_option("api-server".into(), lic.api);\n    }\n'
+                      '    // A stale "stop-service" left by a portable run would skip creating the service.\n'
+                      + line)
+    p.write_text(src, encoding="utf-8")
+    print("[+] Автозапуск службы после установки")
+
+
 # ---------- 8. Регистрация по почте в окне входа ----------
 def accounts():
     import shutil
@@ -327,5 +347,6 @@ install_icons()
 rename_all()
 recolor()
 fix_windows_install()
+fix_windows_autostart()
 accounts()
 print(f"\nГотово: {APP_NAME}, сервер {SERVER}, автор {AUTHOR} <{EMAIL}>")
