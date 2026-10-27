@@ -104,10 +104,14 @@ func (c *winCapturer) Grab(quality int) (*Frame, error) {
 	defer procDeleteObject.Call(bmp)
 
 	old, _, _ := procSelectObject.Call(memDC, bmp)
-	defer procSelectObject.Call(memDC, old)
 
 	ok, _, _ := procBitBlt.Call(memDC, 0, 0, uintptr(w), uintptr(h),
 		screenDC, uintptr(int32(x0)), uintptr(int32(y0)), srcCopy|captureBLT)
+
+	// GetDIBits requires the bitmap NOT be selected into any DC, so deselect it
+	// (restore the DC's default object) before reading the pixels.
+	procSelectObject.Call(memDC, old)
+
 	if ok == 0 {
 		return nil, fmt.Errorf("BitBlt failed")
 	}
