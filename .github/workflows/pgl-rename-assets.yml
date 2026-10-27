@@ -27,6 +27,7 @@ jobs:
           fi
           while read -r id name; do
             new="${name/#rustdesk/PGL-RUDesk}"
+            new="${new/#pgl-rudesk/PGL-RUDesk}"
             new=$(printf '%s' "$new" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+)?//')
             [ "$new" = "$name" ] && continue
             stale=$(awk -v n="$new" '$2 == n { print $1 }' assets.txt)

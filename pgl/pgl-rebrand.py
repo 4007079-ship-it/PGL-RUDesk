@@ -13,6 +13,7 @@ PGL-RUDesk: патч исходников RustDesk.
   7. Windows: при установке exe переименовывается в PGL-RUDesk.exe
   8. Регистрация по почте в окне входа (файл pgl/flutter/pgl_register.dart)
   9. Отвязка от RustDesk: без проверки обновлений, ссылки ведут на свой сайт
+ 10. Linux: пакет, команда, служба и папки называются pgl-rudesk
 Повторный запуск безопасен: уже применённые изменения пропускаются.
 """
 import re
@@ -173,7 +174,8 @@ def rename_all():
         ('applicationId "com.carriez.flutter_hbb"', f'applicationId "{ANDROID_ID}"'),
     ])
     # Linux: название в меню приложений
-    for f in ["res/rustdesk.desktop", "res/rustdesk-link.desktop"]:
+    for f in [f for f in ["res/rustdesk.desktop", "res/rustdesk-link.desktop",
+                          "res/pgl-rudesk.desktop", "res/pgl-rudesk-link.desktop"] if Path(f).is_file()]:
         rename(f, [("\nName=RustDesk\n", f"\nName={APP_NAME}\n")])
 
 
@@ -333,6 +335,148 @@ def unlink_rustdesk():
     print(f"[+] Отвязка от RustDesk: изменено файлов {changed}" if changed else "[=] Отвязка от RustDesk: уже сделана")
 
 
+# ---------- 10. Linux: пакет, команда, служба и папки называются pgl-rudesk ----------
+LINUX_NAME = "pgl-rudesk"
+FLATPAK_ID = "com.pglrudesk.PGLRUDesk"
+# «rustdesk» как отдельное имя; не трогаем librustdesk, rustdesk_core_main, rustdesk.com,
+# rustdesk-org, github.com/rustdesk, com.rustdesk.* и имя rustdesk.deb (файл между шагами сборки)
+LINUX_TOKEN = re.compile(
+    r"(?<![\w.\-])(?<!github\.com/)(?<!github\.com/rustdesk/)rustdesk(?![\w]|\.com|-org|\.deb)"
+)
+LINUX_FILES = [
+    "res/DEBIAN/postinst", "res/DEBIAN/preinst", "res/DEBIAN/prerm", "res/DEBIAN/postrm",
+    "res/rpm-flutter.spec", "res/rpm-flutter-suse.spec", "res/PKGBUILD", "res/pacman_install",
+    "appimage/AppImageBuilder-x86_64.yml", "appimage/AppImageBuilder-aarch64.yml",
+    "flatpak/rustdesk.json",
+]
+LINUX_RENAMES = [
+    ("res/rustdesk.service", "res/pgl-rudesk.service"),
+    ("res/rustdesk.desktop", "res/pgl-rudesk.desktop"),
+    ("res/rustdesk-link.desktop", "res/pgl-rudesk-link.desktop"),
+    ("flatpak/com.rustdesk.RustDesk.metainfo.xml", f"flatpak/{FLATPAK_ID}.metainfo.xml"),
+]
+BUILD_PY_FUNCS = [
+    "generate_control_file", "stage_libdrmtap_into_deb", "measured_glibc_floor",
+    "retarget_control_to_drm_variant", "build_flutter_deb", "assert_staged_binary_is_drm",
+    "build_deb_from_folder",
+]
+RPM_META = [
+    ("URL:        https://rustdesk.com", f"URL:        {SITE}"),
+    ("Vendor:     rustdesk <info@rustdesk.com>", f"Vendor:     {AUTHOR} <{EMAIL}>"),
+    ("The best open-source remote desktop client software, written in Rust.",
+     "PGL-RUDesk remote desktop client."),
+]
+FLATPAK_METAINFO = f"""<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>{FLATPAK_ID}</id>
+  <developer id="com.pglrudesk">
+    <name>{AUTHOR}</name>
+  </developer>
+  <launchable type="desktop-id">{FLATPAK_ID}.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-only</project_license>
+  <name>{APP_NAME}</name>
+  <summary>Remote desktop access through your own server</summary>
+  <description>
+    <p>{APP_NAME} connects to computers and phones through its own server: screen, mouse, keyboard and files, encrypted end to end.</p>
+    <p>Based on RustDesk (AGPL-3.0).</p>
+  </description>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <url type="homepage">{SITE}</url>
+  <url type="help">{HELP}</url>
+  <url type="vcs-browser">https://github.com/4007079-ship-it/PGL-RUDesk</url>
+  <content_rating type="oars-1.1" />
+</component>
+"""
+
+
+def _linux_sub(text):
+    return LINUX_TOKEN.sub(LINUX_NAME, text)
+
+
+def _build_py_linux(src):
+    lines = src.split("\n")
+    out, inside = [], False
+    for line in lines:
+        m = re.match(r"def (\w+)\(", line)
+        if m:
+            inside = m.group(1) in BUILD_PY_FUNCS
+        elif line and not line[0].isspace():
+            inside = False
+        keep = (line.lstrip().startswith("#") or "rustdesk.deb" in line
+                or "rustdesk-%s.deb" in line)
+        if line.startswith("DRM_PACKAGE_NAME =") or line.startswith("DRMTAP_DLOPEN_MARKER ="):
+            line = _linux_sub(line)
+        elif inside and not keep:
+            line = _linux_sub(line)
+        out.append(line)
+    src = "\n".join(out)
+    # Описание пакета и замена старого пакета rustdesk (прошлые сборки PGL-RUDesk назывались так)
+    src = src.replace(
+        "Maintainer: rustdesk <info@rustdesk.com>\nHomepage: https://rustdesk.com\n",
+        f"Maintainer: {AUTHOR} <{EMAIL}>\nHomepage: {SITE}\nConflicts: rustdesk\nReplaces: rustdesk\n")
+    src = src.replace("Description: A remote control software.\n",
+                      f"Description: {APP_NAME} remote desktop client.\n")
+    src = src.replace(
+        f"            out.append('Conflicts: {LINUX_NAME}\\nReplaces: {LINUX_NAME}\\nProvides: {LINUX_NAME}\\n')\n",
+        f"            out.append('Conflicts: {LINUX_NAME}, rustdesk\\nReplaces: {LINUX_NAME}, rustdesk\\nProvides: {LINUX_NAME}\\n')\n"
+        "        elif line.startswith('Conflicts:') or line.startswith('Replaces:'):\n"
+        "            continue\n")
+    return src
+
+
+def rename_linux():
+    if f'set(BINARY_NAME "{LINUX_NAME}")' in Path("flutter/linux/CMakeLists.txt").read_text(encoding="utf-8"):
+        print("[=] Linux-имена: уже изменены")
+        return
+    changed = []
+    for old, new in LINUX_RENAMES:
+        if Path(old).exists() and not Path(new).exists():
+            Path(old).rename(new)
+            changed.append(new)
+    for f in ["res/pgl-rudesk.service", "res/pgl-rudesk.desktop", "res/pgl-rudesk-link.desktop"] + LINUX_FILES:
+        p = Path(f)
+        src = p.read_text(encoding="utf-8")
+        new = src
+        for a, b in RPM_META:
+            new = new.replace(a, b)
+        new = _linux_sub(new)
+        if f.endswith(".spec"):
+            new = new.replace("Requires:   ", "Conflicts:  rustdesk\nRequires:   ", 1)
+        if f == "res/PKGBUILD":
+            new = new.replace("conflicts=()", "conflicts=('rustdesk')")
+        if f == "res/pgl-rudesk.service":
+            new = new.replace("Description=RustDesk", f"Description={APP_NAME}")
+        if f == "flatpak/rustdesk.json":
+            new = new.replace('"com.rustdesk.RustDesk"', f'"{FLATPAK_ID}"').replace(
+                '"com.rustdesk.RustDesk.metainfo.xml"', f'"{FLATPAK_ID}.metainfo.xml"')
+        if new != src:
+            p.write_text(new, encoding="utf-8")
+            changed.append(f)
+    meta = Path(f"flatpak/{FLATPAK_ID}.metainfo.xml")
+    if meta.read_text(encoding="utf-8") != FLATPAK_METAINFO:
+        meta.write_text(FLATPAK_METAINFO, encoding="utf-8")
+        changed.append(str(meta))
+    for f, pairs in {
+        "build.py": None,
+        "flutter/linux/CMakeLists.txt": [('set(BINARY_NAME "rustdesk")', f'set(BINARY_NAME "{LINUX_NAME}")')],
+        "libs/scrap/src/common/drmtap_dl.rs": [('"/usr/lib/rustdesk/libdrmtap.so.0"', f'"/usr/lib/{LINUX_NAME}/libdrmtap.so.0"')],
+    }.items():
+        p = Path(f)
+        src = p.read_text(encoding="utf-8")
+        if pairs is None:
+            new = _build_py_linux(src)
+        else:
+            new = src
+            for a, b in pairs:
+                new = new.replace(a, b)
+        if new != src:
+            p.write_text(new, encoding="utf-8")
+            changed.append(f)
+    print(f"[+] Linux-имена: изменено {len(changed)}" if changed else "[=] Linux-имена: уже изменены")
+
 # ---------- 8. Регистрация по почте в окне входа ----------
 def accounts():
     import shutil
@@ -422,4 +566,5 @@ fix_windows_install()
 fix_windows_autostart()
 accounts()
 unlink_rustdesk()
+rename_linux()
 print(f"\nГотово: {APP_NAME}, сервер {SERVER}, автор {AUTHOR} <{EMAIL}>")

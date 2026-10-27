@@ -111,10 +111,9 @@ sudo reboot</pre>
   <article id="selinux">
     <h2>Linux: SELinux блокирует службу</h2>
     <p>В Fedora, CentOS и RHEL SELinux может мешать службе PGL-RUDesk. Чтобы разрешить ей работать, выполните:</p>
-    <pre>sudo ausearch -c 'rustdesk' --raw | audit2allow -M pgl-rudesk
+    <pre>sudo ausearch -c 'pgl-rudesk' --raw | audit2allow -M pgl-rudesk
 sudo semodule -i pgl-rudesk.pp
-sudo systemctl restart rustdesk</pre>
-    <p class="muted">В Linux-пакете служба и файл программы технически называются <code>rustdesk</code>.</p>
+sudo systemctl restart pgl-rudesk</pre>
     <p class="muted">Для быстрой проверки можно временно отключить SELinux командой <code>sudo setenforce 0</code>. После перезагрузки он включится снова.</p>
   </article>
 

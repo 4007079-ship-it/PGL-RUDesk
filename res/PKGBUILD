@@ -1,4 +1,4 @@
-pkgname=rustdesk
+pkgname=pgl-rudesk
 pkgver=1.5.1
 pkgrel=0
 epoch=
@@ -12,7 +12,7 @@ makedepends=()
 checkdepends=()
 optdepends=()
 provides=()
-conflicts=()
+conflicts=('rustdesk')
 replaces=()
 backup=()
 options=()
@@ -23,13 +23,13 @@ md5sums=() #generate with 'makepkg -g'
 
 package() {
   if [[ ${FLUTTER} ]]; then
-	  mkdir -p "${pkgdir}/usr/share/rustdesk" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "${pkgdir}/usr/share/rustdesk"
+	  mkdir -p "${pkgdir}/usr/share/pgl-rudesk" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "${pkgdir}/usr/share/pgl-rudesk"
   fi
   mkdir -p "${pkgdir}/usr/bin"
-  pushd ${pkgdir} && ln -s /usr/share/rustdesk/rustdesk usr/bin/rustdesk && popd
-  install -Dm 644 $HBB/res/rustdesk.service -t "${pkgdir}/usr/share/rustdesk/files"
-  install -Dm 644 $HBB/res/rustdesk.desktop -t "${pkgdir}/usr/share/rustdesk/files"
-  install -Dm 644 $HBB/res/rustdesk-link.desktop -t "${pkgdir}/usr/share/rustdesk/files"
-  install -Dm 644 $HBB/res/128x128@2x.png "${pkgdir}/usr/share/icons/hicolor/256x256/apps/rustdesk.png"
-  install -Dm 644 $HBB/res/scalable.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/rustdesk.svg"
+  pushd ${pkgdir} && ln -s /usr/share/pgl-rudesk/pgl-rudesk usr/bin/pgl-rudesk && popd
+  install -Dm 644 $HBB/res/pgl-rudesk.service -t "${pkgdir}/usr/share/pgl-rudesk/files"
+  install -Dm 644 $HBB/res/pgl-rudesk.desktop -t "${pkgdir}/usr/share/pgl-rudesk/files"
+  install -Dm 644 $HBB/res/pgl-rudesk-link.desktop -t "${pkgdir}/usr/share/pgl-rudesk/files"
+  install -Dm 644 $HBB/res/128x128@2x.png "${pkgdir}/usr/share/icons/hicolor/256x256/apps/pgl-rudesk.png"
+  install -Dm 644 $HBB/res/scalable.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/pgl-rudesk.svg"
 }

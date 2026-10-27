@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.pglrudesk.PGLRUDesk</id>
+  <developer id="com.pglrudesk">
+    <name>SMV</name>
+  </developer>
+  <launchable type="desktop-id">com.pglrudesk.PGLRUDesk.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-only</project_license>
+  <name>PGL-RUDesk</name>
+  <summary>Remote desktop access through your own server</summary>
+  <description>
+    <p>PGL-RUDesk connects to computers and phones through its own server: screen, mouse, keyboard and files, encrypted end to end.</p>
+    <p>Based on RustDesk (AGPL-3.0).</p>
+  </description>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <url type="homepage">http://pgl-rudesk.ddns.info</url>
+  <url type="help">http://pgl-rudesk.ddns.info/help/</url>
+  <url type="vcs-browser">https://github.com/4007079-ship-it/PGL-RUDesk</url>
+  <content_rating type="oars-1.1" />
+</component>

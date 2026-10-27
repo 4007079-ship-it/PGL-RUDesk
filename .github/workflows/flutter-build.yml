@@ -2071,7 +2071,7 @@ jobs:
             esac
             HBB=`pwd` rpmbuild ./res/rpm-flutter.spec -bb
             pushd ~/rpmbuild/RPMS/${{ matrix.job.arch }}
-            for name in rustdesk*??.rpm; do
+            for name in pgl-rudesk*??.rpm; do
                 mv "$name" /workspace/"${name%%.rpm}.rpm"
             done
 
@@ -2085,7 +2085,7 @@ jobs:
             esac
             HBB=`pwd` rpmbuild ./res/rpm-flutter-suse.spec -bb
             pushd ~/rpmbuild/RPMS/${{ matrix.job.arch }}
-            for name in rustdesk*??.rpm; do
+            for name in pgl-rudesk*??.rpm; do
                 mv "$name" /workspace/"${name%%.rpm}-suse.rpm"
             done
 
@@ -2097,7 +2097,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           files: |
             rustdesk-*.deb
-            rustdesk-*.rpm
+            pgl-rudesk-*.rpm
 
       - name: Upload deb
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -2132,7 +2132,7 @@ jobs:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
           files: |
-            res/rustdesk-${{ env.VERSION }}*.zst
+            res/pgl-rudesk-${{ env.VERSION }}*.zst
 
   # Same build as build-rustdesk-linux x86_64 -- same vcpkg/ffmpeg, same ubuntu18.04 container, same
   # rust and flutter -- only with the drm feature on, so it ships as the separate
@@ -2404,7 +2404,7 @@ jobs:
             export CARGO_INCREMENTAL=0
             export DEB_ARCH=amd64
             python3 ./build.py --flutter --drm --hwcodec --unix-file-copy-paste --skip-cargo
-            for name in rustdesk*??.deb; do
+            for name in pgl-rudesk*??.deb; do
               mv "$name" "${name%%.deb}-x86_64.deb"
             done
 
@@ -2417,24 +2417,24 @@ jobs:
           # Resolve by glob, not from env.VERSION: build.py names the deb from Cargo.toml, so a
           # hardcoded name fails with a bare exit 1 the first time those two drift.
           shopt -s nullglob
-          debs=(rustdesk-unattended-wayland-*-x86_64.deb)
+          debs=(pgl-rudesk-unattended-wayland-*-x86_64.deb)
           if [ "${#debs[@]}" -ne 1 ]; then
-            echo "::error::expected one rustdesk-unattended-wayland-*-x86_64.deb, found ${#debs[@]}: ${debs[*]-none}"
+            echo "::error::expected one pgl-rudesk-unattended-wayland-*-x86_64.deb, found ${#debs[@]}: ${debs[*]-none}"
             exit 1
           fi
           deb="${debs[0]}"
           echo "DRM_DEB=$deb" >> "$GITHUB_ENV"
           contents="$(dpkg -c "$deb")"
-          if [[ ! "$contents" =~ usr/lib/rustdesk/libdrmtap\.so\.0\.[0-9]+\.[0-9]+ ]]; then
+          if [[ ! "$contents" =~ usr/lib/pgl-rudesk/libdrmtap\.so\.0\.[0-9]+\.[0-9]+ ]]; then
             echo "::error::$deb has no versioned libdrmtap.so.0.x.y"
             exit 1
           fi
-          if [[ "$contents" != *"usr/lib/rustdesk/libdrmtap.so.0 ->"* ]]; then
+          if [[ "$contents" != *"usr/lib/pgl-rudesk/libdrmtap.so.0 ->"* ]]; then
             echo "::error::$deb has no libdrmtap.so.0 soname symlink"
             exit 1
           fi
           rm -rf /tmp/deb && dpkg-deb -R "$deb" /tmp/deb
-          if ! grep -qF /usr/lib/rustdesk/libdrmtap.so.0 /tmp/deb/usr/share/rustdesk/lib/librustdesk.so; then
+          if ! grep -qF /usr/lib/pgl-rudesk/libdrmtap.so.0 /tmp/deb/usr/share/pgl-rudesk/lib/librustdesk.so; then
             echo "::error::$deb was not built with the drm feature"
             exit 1
           fi
@@ -2459,7 +2459,7 @@ jobs:
           path: ${{ env.DRM_DEB }}
 
   build-rustdesk-linux-sciter:
-    if: ${{ inputs.upload-artifact }}
+    if: false
     needs: [validate-update-metadata-keys]
     runs-on: ${{ matrix.job.on }}
     name: build-rustdesk-linux-sciter ${{ matrix.job.target }}
@@ -2752,13 +2752,12 @@ jobs:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
           files: |
-            ./appimage/rustdesk-${{ env.VERSION }}-*.AppImage
+            ./appimage/pgl-rudesk-${{ env.VERSION }}-*.AppImage
 
   build-flatpak:
     name: Build flatpak ${{ matrix.job.target }}${{ matrix.job.suffix }}
     needs:
       - build-rustdesk-linux
-      - build-rustdesk-linux-sciter
     runs-on: ${{ matrix.job.on }}
     if: ${{ inputs.upload-artifact }}
     strategy:
@@ -2772,13 +2771,6 @@ jobs:
               on: ubuntu-22.04,
               arch: x86_64,
               suffix: "",
-            }
-          - {
-              target: x86_64-unknown-linux-gnu,
-              distro: ubuntu22.04,
-              on: ubuntu-22.04,
-              arch: x86_64,
-              suffix: "-sciter",
             }
           - {
               target: aarch64-unknown-linux-gnu,
@@ -2829,7 +2821,7 @@ jobs:
             pushd flatpak
             git clone https://github.com/flathub/shared-modules.git --depth=1
             flatpak-builder --user --install-deps-from=flathub -y --force-clean --repo=repo ./build ./rustdesk.json
-            flatpak build-bundle ./repo rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}${{ matrix.job.suffix }}.flatpak com.rustdesk.RustDesk
+            flatpak build-bundle ./repo rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}${{ matrix.job.suffix }}.flatpak com.pglrudesk.PGLRUDesk
 
       - name: Publish flatpak package
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1

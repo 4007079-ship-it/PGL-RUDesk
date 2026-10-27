@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=PGL-RUDesk
+NoDisplay=true
+MimeType=x-scheme-handler/pgl-rudesk;
+TryExec=pgl-rudesk
+Exec=pgl-rudesk %u
+Icon=pgl-rudesk
+Terminal=false
+Type=Application
+StartupNotify=false
+StartupWMClass=pgl-rudesk
