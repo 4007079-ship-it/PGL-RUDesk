@@ -24,6 +24,8 @@ func main() {
 	flag.StringVar(&cfg.Host, "host", envOr("PGL_HOST", "127.0.0.1"), "hostname clients use for STUN/TURN")
 	flag.StringVar(&cfg.Realm, "realm", envOr("PGL_REALM", "pgl-rudesk"), "TURN realm")
 	flag.IntVar(&cfg.TurnPort, "turn-port", envInt("PGL_TURN_PORT", 21221), "UDP port for STUN/TURN")
+	flag.IntVar(&cfg.RelayMin, "relay-min", envInt("PGL_RELAY_MIN", 21300), "lowest UDP relay port")
+	flag.IntVar(&cfg.RelayMax, "relay-max", envInt("PGL_RELAY_MAX", 21400), "highest UDP relay port")
 	flag.StringVar(&cfg.DataFile, "data", envOr("PGL_DATA", "pgl-data.json"), "data file path")
 	flag.Parse()
 

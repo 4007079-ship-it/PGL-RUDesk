@@ -20,14 +20,16 @@ type turnServer struct {
 	port   int
 }
 
-func startTURN(publicIP, realm, secret string, port int) (*turnServer, error) {
+func startTURN(publicIP, realm, secret string, port, relayMin, relayMax int) (*turnServer, error) {
 	udp, err := net.ListenPacket("udp4", "0.0.0.0:"+itoa(port))
 	if err != nil {
 		return nil, err
 	}
-	gen := &turn.RelayAddressGeneratorStatic{
+	gen := &turn.RelayAddressGeneratorPortRange{
 		RelayAddress: net.ParseIP(publicIP),
 		Address:      "0.0.0.0",
+		MinPort:      uint16(relayMin),
+		MaxPort:      uint16(relayMax),
 	}
 	srv, err := turn.NewServer(turn.ServerConfig{
 		Realm:         realm,

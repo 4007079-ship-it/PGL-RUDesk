@@ -21,6 +21,8 @@ type Config struct {
 	Host     string // hostname clients use to reach STUN/TURN (domain or IP)
 	Realm    string
 	TurnPort int
+	RelayMin int // lowest UDP port used for TURN relay allocations
+	RelayMax int // highest UDP port used for TURN relay allocations
 	DataFile string
 	Web      fs.FS // embedded web assets (may be nil)
 }
@@ -45,7 +47,11 @@ func New(cfg Config) (*Server, error) {
 		up:  websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }},
 	}
 	if cfg.PublicIP != "" {
-		ts, err := startTURN(cfg.PublicIP, cfg.Realm, st.TurnSecret(), cfg.TurnPort)
+		rmin, rmax := cfg.RelayMin, cfg.RelayMax
+		if rmin == 0 || rmax == 0 || rmin > rmax {
+			rmin, rmax = 21300, 21400
+		}
+		ts, err := startTURN(cfg.PublicIP, cfg.Realm, st.TurnSecret(), cfg.TurnPort, rmin, rmax)
 		if err != nil {
 			log.Printf("turn disabled: %v", err)
 		} else {
