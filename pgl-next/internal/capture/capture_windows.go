@@ -20,9 +20,11 @@ var (
 	gdi32    = windows.NewLazySystemDLL("gdi32.dll")
 	kernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	procGetDC              = user32.NewProc("GetDC")
-	procReleaseDC          = user32.NewProc("ReleaseDC")
-	procGetSystemMetrics   = user32.NewProc("GetSystemMetrics")
+	procGetDC                  = user32.NewProc("GetDC")
+	procReleaseDC              = user32.NewProc("ReleaseDC")
+	procGetSystemMetrics       = user32.NewProc("GetSystemMetrics")
+	procSetProcessDPIAware     = user32.NewProc("SetProcessDPIAware")
+	procSetProcessDpiAwareness = user32.NewProc("SetProcessDpiAwarenessContext")
 	procCreateCompatibleDC = gdi32.NewProc("CreateCompatibleDC")
 	procCreateCompatBitmap = gdi32.NewProc("CreateCompatibleBitmap")
 	procSelectObject       = gdi32.NewProc("SelectObject")
@@ -64,7 +66,20 @@ type winCapturer struct {
 }
 
 func init() {
+	makeDPIAware()
 	Factory = func() (Capturer, error) { return &winCapturer{}, nil }
+}
+
+// makeDPIAware makes GetSystemMetrics and BitBlt report and capture true
+// pixels on scaled displays. Tries per-monitor-v2, then the legacy call.
+func makeDPIAware() {
+	const perMonitorV2 = ^uintptr(3) // -4 as uintptr: DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+	if procSetProcessDpiAwareness.Find() == nil {
+		if r, _, _ := procSetProcessDpiAwareness.Call(perMonitorV2); r != 0 {
+			return
+		}
+	}
+	procSetProcessDPIAware.Call()
 }
 
 func metric(i int) int {
@@ -107,6 +122,11 @@ func (c *winCapturer) Grab(quality int) (*Frame, error) {
 
 	ok, _, _ := procBitBlt.Call(memDC, 0, 0, uintptr(w), uintptr(h),
 		screenDC, uintptr(int32(x0)), uintptr(int32(y0)), srcCopy|captureBLT)
+	if ok == 0 {
+		// Some drivers reject CAPTUREBLT; retry with a plain copy.
+		ok, _, _ = procBitBlt.Call(memDC, 0, 0, uintptr(w), uintptr(h),
+			screenDC, uintptr(int32(x0)), uintptr(int32(y0)), srcCopy)
+	}
 
 	// GetDIBits requires the bitmap NOT be selected into any DC, so deselect it
 	// (restore the DC's default object) before reading the pixels.

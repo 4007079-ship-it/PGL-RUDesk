@@ -156,6 +156,10 @@ func (s *session) videoLoop(dc *webrtc.DataChannel) {
 	interval := time.Second / time.Duration(maxInt(s.h.cfg.FPS, 1))
 	t := time.NewTicker(interval)
 	defer t.Stop()
+	log.Printf("host: session %s video channel open, streaming started", s.sid)
+	var sent, errs uint64
+	var first bool
+	lastLog := time.Now()
 	for {
 		select {
 		case <-s.stopVid:
@@ -164,16 +168,29 @@ func (s *session) videoLoop(dc *webrtc.DataChannel) {
 			if !s.isAuthed() {
 				continue
 			}
-			if dc.BufferedAmount() > 2*1024*1024 {
+			if dc.BufferedAmount() > 4*1024*1024 {
 				continue // viewer is behind; skip this frame
 			}
 			f, err := s.cap.Grab(s.h.cfg.Quality)
 			if err != nil {
-				log.Printf("host: capture: %v", err)
+				errs++
+				if errs <= 3 || errs%30 == 0 {
+					log.Printf("host: capture error (#%d): %v", errs, err)
+				}
 				continue
 			}
+			if !first {
+				first = true
+				log.Printf("host: first frame %dx%d, %d bytes", f.Width, f.Height, len(f.JPEG))
+			}
 			if err := dc.Send(f.JPEG); err != nil {
+				log.Printf("host: send failed: %v", err)
 				return
+			}
+			sent++
+			if time.Since(lastLog) >= 5*time.Second {
+				log.Printf("host: streaming %d frames sent, %d capture errors", sent, errs)
+				lastLog = time.Now()
 			}
 		}
 	}
