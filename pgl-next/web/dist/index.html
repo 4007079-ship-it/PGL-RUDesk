@@ -1,1 +1,81 @@
-<!doctype html><title>PGL-RUDesk</title><h1>PGL-RUDesk</h1>
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PGL-RUDesk — управление</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="logo"></span> PGL-RUDesk</div>
+  <div id="who" class="who hidden">
+    <span id="whoEmail"></span>
+    <button id="logoutBtn" class="link">Выйти</button>
+  </div>
+</header>
+
+<main>
+  <!-- Экран входа -->
+  <section id="authView" class="card hidden">
+    <h1>Вход</h1>
+    <div class="tabs">
+      <button class="tab active" data-tab="login">Вход</button>
+      <button class="tab" data-tab="register">Регистрация</button>
+    </div>
+    <form id="authForm">
+      <label>Почта<input type="email" id="email" autocomplete="username" required></label>
+      <label>Пароль<input type="password" id="password" autocomplete="current-password" required></label>
+      <div id="authErr" class="err"></div>
+      <button class="btn" id="authSubmit" type="submit">Войти</button>
+    </form>
+  </section>
+
+  <!-- Список устройств -->
+  <section id="devicesView" class="card hidden">
+    <div class="row-between">
+      <h1>Мои устройства</h1>
+      <button class="btn ghost" id="refreshBtn">Обновить</button>
+    </div>
+    <div id="devList" class="devices"></div>
+    <div class="connect-by-id">
+      <h2>Подключиться по ID</h2>
+      <div class="row">
+        <input id="connId" placeholder="ID устройства" inputmode="numeric">
+        <button class="btn" id="connBtn">Подключиться</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Просмотр экрана -->
+  <section id="viewerView" class="viewer hidden">
+    <div class="viewer-bar">
+      <button class="btn ghost sm" id="backBtn">← Назад</button>
+      <span id="vStatus" class="status">Подключение…</span>
+      <span class="spacer"></span>
+      <button class="btn ghost sm" id="fsBtn">Во весь экран</button>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="screen" tabindex="0"></canvas>
+    </div>
+  </section>
+</main>
+
+<!-- Окно пароля -->
+<div id="pwModal" class="modal hidden">
+  <div class="modal-card">
+    <h2>Пароль доступа</h2>
+    <p class="muted">Введите пароль, заданный на удалённом компьютере.</p>
+    <input type="password" id="pwInput" autocomplete="off">
+    <div id="pwErr" class="err"></div>
+    <div class="row-end">
+      <button class="btn ghost" id="pwCancel">Отмена</button>
+      <button class="btn" id="pwOk">Подключиться</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

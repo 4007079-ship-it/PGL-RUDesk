@@ -27,6 +27,14 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o out/pgl-server-linux-amd64 ./cmd/pgl-server
           CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o out/pgl-server-linux-arm64 ./cmd/pgl-server
 
+      - name: Build host (Windows + Linux)
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o out/PGL-Host.exe ./cmd/pgl-host
+          CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o out/pgl-host-linux-amd64 ./cmd/pgl-host
+
+      - name: Verify Windows capture/input build
+        run: GOOS=windows GOARCH=amd64 go vet ./internal/capture/ ./internal/input/
+
       - name: Test
         run: go test ./internal/...
 
@@ -39,3 +47,5 @@ jobs:
           files: |
             pgl-next/out/pgl-server-linux-amd64
             pgl-next/out/pgl-server-linux-arm64
+            pgl-next/out/PGL-Host.exe
+            pgl-next/out/pgl-host-linux-amd64
