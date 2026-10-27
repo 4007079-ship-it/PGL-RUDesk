@@ -151,10 +151,12 @@ func (c *winCapturer) Grab(quality int) (*Frame, error) {
 		BiBitCount:    32,
 		BiCompression: biRGB,
 	}
-	r, _, _ := procGetDIBits.Call(memDC, bmp, 0, uintptr(h),
+	// Read through the screen DC (compatible with the DDB and never had the
+	// bitmap selected), which some drivers require for GetDIBits to succeed.
+	r, _, callErr := procGetDIBits.Call(screenDC, bmp, 0, uintptr(h),
 		uintptr(unsafe.Pointer(&bits[0])), uintptr(unsafe.Pointer(&bi)), diBRGB)
 	if r == 0 {
-		return nil, fmt.Errorf("GetDIBits failed")
+		return nil, fmt.Errorf("GetDIBits failed (%v)", callErr)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
